@@ -1,29 +1,51 @@
-const express = require('express')
-const app = express()
-const server = require('http').Server(app)
-const io = require('socket.io')(server)
-const { v4: uuidV4 } = require('uuid')
+const express = require('express');
+const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 
-app.set('view engine', 'ejs')
-app.use(express.static('public'))
-
-app.get('/', (req, res) => {
-  res.redirect(`/${uuidV4()}`)
-})
-
-app.get('/:room', (req, res) => {
-  res.render('room', { roomId: req.params.room })
-})
+app.use(express.static('public'));
 
 io.on('connection', socket => {
-  socket.on('join-room', (roomId, userId) => {
-    socket.join(roomId)
-    socket.to(roomId).broadcast.emit('user-connected', userId)
+  var clients = {};
+
+  // user props: id, name, position, avatar
+  // enter-room is emitted when a user joins or creates a new room
+  socket.on('enter-room', (roomId, user) => {
+    // add userId to list of connected clients
+    clients[roomId].push(user.id); 
+    socket.join(roomId);
+
+    socket.to(roomId).broadcast.emit('user-connected', user);
 
     socket.on('disconnect', () => {
-      socket.to(roomId).broadcast.emit('user-disconnected', userId)
-    })
-  })
-})
+      socket.to(roomId).broadcast.emit('user-disconnected', user);
+      // remove userId to list of connected clients
+      clients[roomId] = clients[roomId].filter(user => user !== user.id);
+    });
+  });
 
-server.listen(3000)
+  socket.on('user-updated', (roomId, user) => {
+    socket.to(roomId).broadcast.emit('user-updated', user);
+  });
+
+  // broken
+  // socket.on('start', (roomId) => {
+  //   const users = clients[roomId];
+  //   const question = "Temporary prompt that will eventually be randomized"
+
+  //   for(var i = users.length-1;i>=0;i--){
+  //     const index = Math.floor(Math.random()*users.length);
+  //     const speaker = users[index];
+  //     users.splice(index, 1);
+
+
+  //     socket.to(roomId).broadcast.emit('start', prompt, firstSpeaker, timer);
+
+  //   }
+  //   // socket.to(roomId).broadcast.emit('game-started', question, firstSpeaker, timer);
+  //   // for each connected client, loop 
+  // });
+
+});
+
+server.listen(3000);
