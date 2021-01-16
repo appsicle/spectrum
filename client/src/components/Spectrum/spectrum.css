@@ -1,0 +1,36 @@
+.spectrum-container {
+    display: flex;
+    height: 300px;
+}
+
+.spectrum-item {
+    width: 100%;
+}
+
+.strongly-disagree {
+    background-color: lightcoral;
+}
+
+.disagree {
+    background-color: lightsalmon;
+}
+
+.somewhat-disagree {
+    background-color: lightyellow;
+}
+
+.undecided {
+    background-color:lightgreen;
+}
+
+.somewhat-agree {
+    background-color: lightseagreen;
+}
+
+.agree {
+    background-color: lightblue;
+}
+
+.strongly-agree {
+    background-color: violet;
+}
