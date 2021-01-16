@@ -14,49 +14,49 @@ function Spectrum() {
           setPosition(-3);
       }}>
        Strongly Disagree
-       {<PeerPositionMarker peers={peers} position={-3}/>}
+       {<PeerPositionMarkers peers={peers} position={-3}/>}
        {position === -3 ? <PositionMarker/> : null}
       </div>
       <div className="disagree spectrum-item" onClick={() => {
           setPosition(-2);
       }}>
        Disagree
-       {<PeerPositionMarker peers={peers} position={-2}/>}
+       {<PeerPositionMarkers peers={peers} position={-2}/>}
        {position === -2 ? <PositionMarker/> : null}
       </div>
       <div className="somewhat-disagree spectrum-item" onClick={() => {
           setPosition(-1);
       }}>
        Somewhat Disagree
-       {<PeerPositionMarker peers={peers} position={-1}/>}
+       {<PeerPositionMarkers peers={peers} position={-1}/>}
        {position === -1 ? <PositionMarker/> : null}
       </div>
       <div className="undecided spectrum-item" onClick={() => {
           setPosition(0);
       }}>
        Undecided
-       {<PeerPositionMarker peers={peers} position={0}/>}
+       {<PeerPositionMarkers peers={peers} position={0}/>}
        {position === 0 ? <PositionMarker/> : null}
       </div>
       <div className="somewhat-agree spectrum-item" onClick={() => {
           setPosition(1);
       }}>
        Somewhat Agree
-       {<PeerPositionMarker peers={peers} position={1}/>}
+       {<PeerPositionMarkers peers={peers} position={1}/>}
        {position === 1 ? <PositionMarker/> : null}
       </div>
       <div className="agree spectrum-item" onClick={() => {
           setPosition(2);
       }}>
        Agree
-       {<PeerPositionMarker peers={peers} position={2}/>}
+       {<PeerPositionMarkers peers={peers} position={2}/>}
        {position === 2 ? <PositionMarker/> : null}
       </div>
       <div className="strongly-agree spectrum-item" onClick={() => {
           setPosition(3);
       }}>
        Strongly Agree
-       {<PeerPositionMarker peers={peers} position={3}/>}
+       {<PeerPositionMarkers peers={peers} position={3}/>}
        {position === 3 ? <PositionMarker/> : null}
       </div>
     </div>
@@ -71,7 +71,7 @@ function Spectrum() {
     )
   }
 
-  function PeerPositionMarker(props) {
+  function PeerPositionMarkers(props) {
       const position = props.position ? props.position : 0;
       const peers = props.peers ? props.peers : [];  
       var filteredPeers = peers.map((peer, index) => {
