@@ -39,6 +39,7 @@ export default function PeerjsTest() {
                 // Show stream in some video/canvas element.
                 videoRefs.current[1].srcObject = remoteStream
                 videoRefs.current[1].play()
+                console.log("Caller: should be playing")
             });
         }else{
             console.log("nope")
@@ -66,6 +67,8 @@ export default function PeerjsTest() {
                     // Show stream in some video/canvas element.
                     videoRefs.current[1].srcObject = remoteStream
                     videoRefs.current[1].play()
+                    console.log("Reciever: should be playing")
+
                 });
             }
         });
@@ -76,8 +79,9 @@ export default function PeerjsTest() {
         if (mediaStream && videoRefs.current[0] && !videoRefs.current[0].srcObject) {
             videoRefs.current[0].srcObject = mediaStream;
             videoRefs.current[0].play()
+            console.log("ASD")
         }
-    })
+    }, [])
 
 
     return (

@@ -8,6 +8,7 @@ export function useUserMedia(requestedMedia) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia(requestedMedia);
         setMediaStream(stream);
+        console.log("connected")
       } catch(err) {
         // Removed for brevity
         console.log(err)
