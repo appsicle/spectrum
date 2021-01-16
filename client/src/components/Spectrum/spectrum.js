@@ -5,7 +5,8 @@ function Spectrum() {
     const [position, setPosition] = useState(0);
     const [peers, setPeers] = useState([
             {color: "#4287f5", id:"dummyid1", name: "friend1", position: 0}, 
-            {color:"#42f54e", id:"dummyid2", name: "friend2", position: -2}
+            {color:"#42f54e", id:"dummyid2", name: "friend2", position: -2},
+            {color:"#fca103", id:"dummyid2", name: "friend3", position: 1}
         ]);
 
     return (
@@ -74,13 +75,12 @@ function Spectrum() {
   function PeerPositionMarkers(props) {
       const position = props.position ? props.position : 0;
       const peers = props.peers ? props.peers : [];  
-      var filteredPeers = peers.map((peer, index) => {
+      return peers.map((peer, index) => {
         if (peer.position === position) {
             return <PositionMarker color={peer.color} name={peer.name}/>
         }
         return null;
-      }).filter((el) => el != null);
-      return filteredPeers;
+      });
   }
 
   
