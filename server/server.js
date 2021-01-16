@@ -25,7 +25,7 @@ io.on("connection", (socket) => {
     if (!rooms[roomId]) {
       rooms[roomId] = {
         users: [],
-        unusedPrompts: [],
+        unusedPrompts: [], // todo initialize unused prompts for the room here
         round: {
           unusedSpeakers: [],
           prompt: '',
@@ -46,7 +46,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("user-updated", (roomId, user) => {
+  socket.on("update-user", (roomId, user) => {
     // go through each user in the given room
     for (var i = 0; i < rooms[roomId].users.length; i++) {
       // if this is the user we're looking for in the room (matched by ID)
@@ -61,13 +61,11 @@ io.on("connection", (socket) => {
     io.in(roomId).emit("user-updated", rooms[roomId]);
   });
 
-  // unfinished
-  // start begins the ice breaker for the first round, initializing the round
-  // can possibly be condensed into functions for code reuse in other places but i'm dead right now
+  // start initializes a new round (called at the first start and every 'next question' after)
   socket.on("start", (roomId) => {
     // all users are available to be the first speaker
     rooms[roomId].round.unusedSpeakers = rooms[roomId].users; 
-    rooms[roomId].round.prompt = "Temporary Prompt"; // todo make this select a random prompt that is in unusedPrompts
+    rooms[roomId].round.prompt = "Temporary Prompt"; // todo make this select a random prompt that is in unusedPrompts and remove the selected one from it
     
     const numPossibleSpeakers = rooms[rootId].round.unusedSpeakers.length;
     const index = Math.floor(Math.random()*numPossibleSpeakers);
@@ -99,13 +97,6 @@ io.on("connection", (socket) => {
     // option to emit rooms[roomId].round but Albert asked for the entire room data for now
     io.in(roomId).emit("round-updated", rooms[roomId]);
   });
-
-  // unfinished
-  socket.on("next-prompt", (roomId) => {
-    // todo make this select a new prompt from unusedPrompts
-    // remove the chosen from the rooms[roomId].unusedPrompts
-    rooms[roomId].round.prompt = "Updated Temporary Prompt";
-    io.in(roomId).emit("round-updated", rooms[roomId].round);
   });
 
 });
