@@ -42,6 +42,11 @@ function App() {
       setRoomData(roomData);
       console.log("user-updated: ", roomData);
     })
+
+    socket.on('round-updated', (roomData) => {
+      setRoomData(roomData);
+      console.log("round-updated: ", roomData);
+    })
   },);
 
   const updateUserPosition = (position) => {
@@ -54,12 +59,16 @@ function App() {
     socket.emit("update-user", roomId, user); // emit to everyone else that we updated
   };
 
+  const startGame = () => {
+    socket.emit('start', roomId);
+  }
+
   return (
     <div className="App">
      <Router>
         <Switch>
             <Route exact path="/" component={() => <Home socket={socket} setUser={setUser} setRoomId={setRoomId}/>} />
-            <Route exact path="/room/:roomId" component={() => <Room user={user} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition}/>} />
+            <Route exact path="/room/:roomId" component={() => <Room startGame={startGame} user={user} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition}/>} />
         </Switch>
       </Router>
     </div>

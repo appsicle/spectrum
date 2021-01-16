@@ -11,6 +11,7 @@ app.use(cors());
 //     users: [Users], 
 //     unusedPrompts: [Prompt (probably a String)], 
 //     round: {
+//        started: false,
 //        unusedSpeakers: [User],
 //        prompt: Prompt,
 //        currentUser: User,
@@ -29,6 +30,7 @@ io.on("connection", (socket) => {
         users: [],
         unusedPrompts: [], // todo initialize unused prompts for the room here
         round: {
+          started: false,
           unusedSpeakers: [],
           prompt: '',
           currentUser: null,
@@ -73,15 +75,18 @@ io.on("connection", (socket) => {
     rooms[roomId].round.unusedSpeakers = rooms[roomId].users; 
     rooms[roomId].round.prompt = "Temporary Prompt"; // todo make this select a random prompt that is in unusedPrompts and remove the selected one from it
     
-    const numPossibleSpeakers = rooms[rootId].round.unusedSpeakers.length;
+    const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
     const index = Math.floor(Math.random()*numPossibleSpeakers);
-    const speaker = users[index];
+    const speaker = rooms[roomId].users[index];
 
     // remove the chosen first speaker from the available speakers
     rooms[roomId].round.unusedSpeakers.splice(index, 1); 
 
     // set first speaker
     rooms[roomId].round.unusedSpeakers = speaker;
+
+    // set round to started
+    rooms[roomId].round.started = true;
 
     // emit round information
     // option to emit rooms[roomId].round but Albert asked for the entire room data for now
