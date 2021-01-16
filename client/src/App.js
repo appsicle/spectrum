@@ -5,15 +5,12 @@ import Home from './components/Home/home';
 import Room from './components/Room/room';
 import './App.css';
 
+import PeerjsTest from './components/peerjsTest/PeerjsTest'
+
 function App() {
   return (
     <div className="App">
-     <Router>
-        <Switch>
-            <Route exact path="/" component={Home} />
-            <Route exact path="/xd" component={Room} />
-        </Switch>
-      </Router>
+      <PeerjsTest></PeerjsTest>
     </div>
   );
 }
