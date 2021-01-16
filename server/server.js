@@ -46,7 +46,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("user-updated", (roomId, user) => {
+  socket.on("update-user", (roomId, user) => {
     // go through each user in the given room
     for (var i = 0; i < rooms[roomId].users.length; i++) {
       // if this is the user we're looking for in the room (matched by ID)
