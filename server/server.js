@@ -38,6 +38,7 @@ io.on("connection", (socket) => {
       };
     }
     rooms[roomId].users.push(user);
+    rooms[roomId].round.unusedSpeakers.push(user);
 
     socket.join(roomId);
     io.in(roomId).emit("user-connected", rooms[roomId]);
@@ -71,8 +72,6 @@ io.on("connection", (socket) => {
 
   // start initializes a new round (called at the first start and every 'next question' after)
   socket.on("start", (roomId) => {
-    // all users are available to be the first speaker
-    rooms[roomId].round.unusedSpeakers = rooms[roomId].users; 
     rooms[roomId].round.prompt = "Temporary Prompt"; // todo make this select a random prompt that is in unusedPrompts and remove the selected one from it
     
     const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
@@ -83,7 +82,7 @@ io.on("connection", (socket) => {
     rooms[roomId].round.unusedSpeakers.splice(index, 1); 
 
     // set first speaker
-    rooms[roomId].round.unusedSpeakers = speaker;
+    rooms[roomId].round.currentUser = speaker;
 
     // set round to started
     rooms[roomId].round.started = true;
@@ -91,6 +90,7 @@ io.on("connection", (socket) => {
     // emit round information
     // option to emit rooms[roomId].round but Albert asked for the entire room data for now
     io.in(roomId).emit("round-updated", rooms[roomId]);
+    console.log("round updated: ", rooms[roomId]);
     // onResetTimer(roomId); // emit 30 second timer
   });
 
