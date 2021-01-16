@@ -5,15 +5,14 @@ import './room.css';
 
 function Room(props) {
   const [roomData, setRoomData] = useState([]);
+  let mounted = true;
 
   useEffect(() => {
-    let mounted = true;
+    
       // whenever a new user connects, add it to state array
     if (mounted) {
       props.socket.on('user-connected', (roomData) => {
-        console.log(roomData);
         setRoomData(roomData);
-        console.log(roomData);
       })
     }
 
