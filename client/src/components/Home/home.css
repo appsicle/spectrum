@@ -1,0 +1,15 @@
+.form-container {
+  margin-top: 400px;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  margin: 0 auto;
+}
+
+.name-input, .room-input, .submit-button {
+  width: 85%;
+  margin: 0 auto;
+}
