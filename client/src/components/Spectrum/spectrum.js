@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import './spectrum.css';
 
-function Spectrum() {
+function Spectrum(props) {
     const [position, setPosition] = useState(0);
-    const [peers, setPeers] = useState([
-            {color: "#4287f5", id:"dummyid1", name: "friend1", position: 0}, 
-            {color:"#42f54e", id:"dummyid2", name: "friend2", position: -2},
-            {color:"#fca103", id:"dummyid2", name: "friend3", position: 1}
-        ]);
+    const [peers, setPeers] = useState(props.users);
 
     return (
     <div className="spectrum-container">
@@ -65,19 +61,22 @@ function Spectrum() {
   }
 
   function PositionMarker(props) {
-    const color = props.color ? props.color : '#000000';
     const name = props.name ? props.name : 'me';
     return (
-        <span style={{backgroundColor: color}} className="dot" > {name} </span>
+        <span className="dot" > 
+            <img src={props.avatar} alt=""/>
+            {name}
+        </span>
     );
   }
 
   function PeerPositionMarkers(props) {
       const position = props.position ? props.position : 0;
-      const peers = props.peers ? props.peers : [];  
+      const peers = props.peers.users ? props.peers.users : []; 
+      // error below 
       return peers.map((peer, index) => {
         if (peer.position === position) {
-            return <PositionMarker color={peer.color} name={peer.name}/>
+            return <PositionMarker avatar={peer.avatar} name={peer.name}/>
         }
         return null;
       });

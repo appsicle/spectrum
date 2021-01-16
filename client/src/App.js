@@ -18,7 +18,7 @@ function App() {
      <Router>
         <Switch>
             <Route exact path="/" component={() => <Home socket={socket} />} />
-            <Route exact path="/:roomId" component={() => <Room socket={socket} />} />
+            <Route exact path="/room/:roomId" component={() => <Room socket={socket} />} />
         </Switch>
       </Router>
     </div>

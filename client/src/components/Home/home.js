@@ -8,13 +8,15 @@ import {
   ButtonToolbar,
 } from "shards-react";
 import { uuid } from 'uuidv4';
-
-import "./home.css";
+import { useHistory } from "react-router-dom";
+import './home.css';
 
 function Home(props) {
   const [toCreate, setToCreate] = useState(false);
   const [nickname, setNickname] = useState("");
   const [roomNumber, setRoomNumber] = useState("");
+
+  const history = useHistory();
 
   const submitForm = (e) => {
     e.preventDefault();
@@ -25,7 +27,8 @@ function Home(props) {
       avatar: 'https://png.pngtree.com/png-vector/20190223/ourmid/pngtree-vector-avatar-icon-png-image_695765.jpg'
     }
     props.socket.emit('enter-room', roomNumber, user);
-    
+    history.push(`/room/${roomNumber}`);
+
     // redirect to url/roomNumber
 
   };
