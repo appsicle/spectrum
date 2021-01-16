@@ -39,6 +39,9 @@ io.on("connection", (socket) => {
 
     socket.join(roomId);
     io.in(roomId).emit("user-connected", rooms[roomId]);
+    console.log('emit user-connected');
+    console.log('roomId: ', roomId);
+    console.log("rooms[roomId]: ", rooms[roomId]);
 
     socket.on("disconnect", () => {
       console.log('disconnect');
@@ -52,7 +55,7 @@ io.on("connection", (socket) => {
     // go through each user in the given room
     for (var i = 0; i < rooms[roomId].users.length; i++) {
       // if this is the user we're looking for in the room (matched by ID)
-      if (rooms[roomId].users[i].userId === user.userId) {
+      if (rooms[roomId].users[i].id === user.id) {
         // update this user in the room 
         rooms[roomId].users[i] = user;
         break;
@@ -61,6 +64,7 @@ io.on("connection", (socket) => {
 
     // emit updated entire rooms[roomId] object
     io.in(roomId).emit("user-updated", rooms[roomId]);
+    console.log('user updated: ', rooms[roomId]);
   });
 
   // start initializes a new round (called at the first start and every 'next question' after)
@@ -108,5 +112,5 @@ io.on("connection", (socket) => {
 // }
 
 server.listen(8000, () => {
-  console.log("listneing on 8000");
+  console.log("listening on 8000");
 });

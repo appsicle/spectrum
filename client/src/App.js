@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Route, BrowserRouter as Router, Switch,
 } from 'react-router-dom';
@@ -14,18 +14,52 @@ import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [roomId, setRoomId] = useState(null);
+  const [roomData, setRoomData] = useState({
+    users: [],
+    unusedPrompts: [],
+    round: {
+      unusedSpeakers: [],
+      prompt: "",
+      currentUser: null,
+    },
+  });
   const socket = io(config.serverUrl);
 
-  const handleUser = (user) => {
-    setUser(user);
-  }
+  useEffect(()=> {
+    socket.on("user-connected", (roomData) => {
+    setRoomData(roomData);
+    console.log(roomData);
+  });
+
+    socket.on("user-disconnected", (roomData) => {
+    console.log("user-connected");
+    setRoomData(roomData);
+    console.log(roomData);
+  });
+
+    socket.on("user-updated", (roomData) => {
+      setRoomData(roomData);
+      console.log("user-updated: ", roomData);
+    })
+  },);
+
+  const updateUserPosition = (position) => {
+    console.log(user);
+    console.log(position);
+
+    var newUser = user;
+    newUser.position = position;
+    setUser(newUser); // update our personal record of our user
+    socket.emit("update-user", roomId, user); // emit to everyone else that we updated
+  };
 
   return (
     <div className="App">
      <Router>
         <Switch>
-            <Route exact path="/" component={() => <Home socket={socket} handleUser={handleUser} />} />
-            <Route exact path="/room/:roomId" component={() => <Room socket={socket} user={user} />} />
+            <Route exact path="/" component={() => <Home socket={socket} setUser={setUser} setRoomId={setRoomId}/>} />
+            <Route exact path="/room/:roomId" component={() => <Room user={user} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition}/>} />
         </Switch>
       </Router>
     </div>

@@ -23,11 +23,12 @@ function Home(props) {
     const user = {
       id: uuid(),
       name: nickname,
-      position: 0,
+      position: 3,
       avatar: 'https://png.pngtree.com/png-vector/20190223/ourmid/pngtree-vector-avatar-icon-png-image_695765.jpg'
     }
     props.socket.emit('enter-room', roomNumber, user);
-    props.handleUser(user);
+    props.setUser(user);
+    props.setRoomId(roomNumber);
     history.push(`/room/${roomNumber}`);
 
     // redirect to url/roomNumber

@@ -1,38 +1,10 @@
-import React, { useEffect, useState } from "react";
 import "./spectrum.css";
 
 function Spectrum(props) {
-  const [markerData, setMarkerData] = useState([]);
-  const [roomData, setRoomData] = useState({
-    users: [{}],
-    unusedPrompts: [],
-    round: {
-      unusedSpeakers: [],
-      prompt: "",
-      currentUser: null,
-    },
-  });
-
-  useEffect(() => {
-    // whenever a new user connects, add it to state array
-    console.log("mounted");
-    props.socket.on("user-connected", (roomData) => {
-      setRoomData(roomData);
-      console.log(roomData);
-    });
-
-    props.socket.on("user-disconnected", (roomData) => {
-      console.log("d");
-      setRoomData(roomData);
-      console.log(roomData);
-    });
-
-    return () => props.socket.disconnect();
-  }, []);
-
-  const updateUserPosition = () => {
-    const user = props.user;
-  };
+  const roomData = props.roomData;
+  // console.log("spectrum");
+  // console.log(roomData);
+  const updateUserPosition = props.updateUserPosition;
 
   const bars = [
     {
@@ -68,7 +40,9 @@ function Spectrum(props) {
   return (
     <div className="spectrum-container">
       {bars.map((bar, index) => (
-        <div className="spectrum-item" style={{ backgroundColor: bar.color }}>
+        <div className="spectrum-item" style={{ backgroundColor: bar.color }} onClick={()=> {
+          updateUserPosition(index);
+        }}>
           <div className="spectrum-item-title">{bar.text}</div>
           <PositionMarkers markerData={roomData.users} position={index} />
         </div>
@@ -78,7 +52,7 @@ function Spectrum(props) {
 }
 
 function PositionMarkers(props) {
-  const position = props.position ? props.position : 3;
+  const position = props.position;
   const markerData = props.markerData ? props.markerData : [];
 
   return markerData.map((user, index) => {
