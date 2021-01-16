@@ -7,13 +7,28 @@ import {
   ButtonGroup,
   ButtonToolbar,
 } from "shards-react";
+import { uuid } from 'uuidv4';
 
 import "./home.css";
 
-function Home() {
+function Home(props) {
   const [toCreate, setToCreate] = useState(false);
   const [nickname, setNickname] = useState("");
   const [roomNumber, setRoomNumber] = useState("");
+
+  const submitForm = (e) => {
+    e.preventDefault();
+    const user = {
+      id: uuid(),
+      name: nickname,
+      position: 0,
+      avatar: 'https://png.pngtree.com/png-vector/20190223/ourmid/pngtree-vector-avatar-icon-png-image_695765.jpg'
+    }
+    props.socket.emit('enter-room', roomNumber, user);
+    
+    // redirect to url/roomNumber
+
+  };
 
   return (
     <div className="home-container">
@@ -42,7 +57,6 @@ function Home() {
         <FormGroup>
           <label htmlFor=".room">Room Name</label>
           <FormInput
-            type="room"
             className="password"
             placeholder="Name of room"
             onChange={(e) => setRoomNumber(e.target.value)}
@@ -52,6 +66,7 @@ function Home() {
           disabled={!(nickname.length && roomNumber.length)}
           block
           outline
+          onClick={(e) => {submitForm(e)}}
         >
           {toCreate ? 'Create New Room' : 'Join Room'}
         </Button>

@@ -1,31 +1,36 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io')(server);
+const server = require("http").Server(app);
+const io = require("socket.io")(server);
 
-app.use(express.static('public'));
+app.use(express.static("public"));
 
-io.on('connection', socket => {
+io.on("connection", (socket) => {
   var clients = {};
 
   // user props: id, name, position, avatar
   // enter-room is emitted when a user joins or creates a new room
-  socket.on('enter-room', (roomId, user) => {
+  socket.on("enter-room", (roomId, user) => {
+    console.log(roomId, user);
     // add userId to list of connected clients
-    clients[roomId].push(user.id); 
+    if (!clients[roomId]) {
+      clients[roomId] = [];
+    }
+    clients[roomId].push(user);
+
     socket.join(roomId);
+    socket.to(roomId).broadcast.emit("user-connected", user);
 
-    socket.to(roomId).broadcast.emit('user-connected', user);
-
-    socket.on('disconnect', () => {
-      socket.to(roomId).broadcast.emit('user-disconnected', user);
+    socket.on("disconnect", () => {
+      console.log('disconenxt');
+      socket.to(roomId).broadcast.emit("user-disconnected", user);
       // remove userId to list of connected clients
-      clients[roomId] = clients[roomId].filter(user => user !== user.id);
+      clients[roomId] = clients[roomId].filter((obj) => obj.id !== user.id);
     });
   });
 
-  socket.on('user-updated', (roomId, user) => {
-    socket.to(roomId).broadcast.emit('user-updated', user);
+  socket.on("user-updated", (roomId, user) => {
+    socket.to(roomId).broadcast.emit("user-updated", user);
   });
 
   // broken
@@ -38,14 +43,14 @@ io.on('connection', socket => {
   //     const speaker = users[index];
   //     users.splice(index, 1);
 
-
   //     socket.to(roomId).broadcast.emit('start', prompt, firstSpeaker, timer);
 
   //   }
   //   // socket.to(roomId).broadcast.emit('game-started', question, firstSpeaker, timer);
-  //   // for each connected client, loop 
+  //   // for each connected client, loop
   // });
-
 });
 
-server.listen(3000);
+server.listen(8000, () => {
+  console.log("listneing on 8000");
+});

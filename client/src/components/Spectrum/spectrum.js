@@ -68,8 +68,8 @@ function Spectrum() {
     const color = props.color ? props.color : '#000000';
     const name = props.name ? props.name : 'me';
     return (
-        <div style={{color: color}}>{name}</div>
-    )
+        <span style={{backgroundColor: color}} className="dot" > {name} </span>
+    );
   }
 
   function PeerPositionMarkers(props) {

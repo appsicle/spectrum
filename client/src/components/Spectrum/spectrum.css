@@ -45,3 +45,13 @@
 .strongly-agree {
     background-color: #8e44ad;
 }
+
+.dot {
+    color: white;
+    text-align: center;
+    padding: 33px 0;
+  height: 100px;
+  width: 100px;
+  border-radius: 50%;
+  display: inline-block;
+}
