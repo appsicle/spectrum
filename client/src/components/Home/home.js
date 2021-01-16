@@ -27,6 +27,7 @@ function Home(props) {
       avatar: 'https://png.pngtree.com/png-vector/20190223/ourmid/pngtree-vector-avatar-icon-png-image_695765.jpg'
     }
     props.socket.emit('enter-room', roomNumber, user);
+    props.handleUser(user);
     history.push(`/room/${roomNumber}`);
 
     // redirect to url/roomNumber

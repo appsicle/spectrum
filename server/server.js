@@ -36,13 +36,13 @@ io.on("connection", (socket) => {
     rooms[roomId].users.push(user);
 
     socket.join(roomId);
-    io.to(roomId).emit("user-connected", rooms[roomId]);
+    io.in(roomId).emit("user-connected", rooms[roomId]);
 
     socket.on("disconnect", () => {
       console.log('disconnect');
       // remove userId from the room
       rooms[roomId].users = rooms[roomId].users.filter((obj) => obj.id !== user.id);
-      io.to(roomId).emit("user-disconnected", rooms[roomId]);
+      io.in(roomId).emit("user-disconnected", rooms[roomId]);
     });
   });
 
@@ -58,7 +58,7 @@ io.on("connection", (socket) => {
     }
 
     // emit updated entire rooms[roomId] object
-    io.to(roomId).emit("user-updated", rooms[roomId]);
+    io.in(roomId).emit("user-updated", rooms[roomId]);
   });
 
   // unfinished
@@ -81,7 +81,7 @@ io.on("connection", (socket) => {
 
     // emit round information
     // option to emit rooms[roomId].round but Albert asked for the entire room data for now
-    io.to(roomId).emit("round-updated", rooms[roomId]);
+    io.in(roomId).emit("round-updated", rooms[roomId]);
     // onResetTimer(roomId); // emit 30 second timer
   });
 
@@ -97,7 +97,7 @@ io.on("connection", (socket) => {
     rooms[roomId].round.unusedSpeakers = speaker;
 
     // option to emit rooms[roomId].round but Albert asked for the entire room data for now
-    io.to(roomId).emit("round-updated", rooms[roomId]);
+    io.in(roomId).emit("round-updated", rooms[roomId]);
   });
 
   // unfinished
@@ -105,7 +105,7 @@ io.on("connection", (socket) => {
     // todo make this select a new prompt from unusedPrompts
     // remove the chosen from the rooms[roomId].unusedPrompts
     rooms[roomId].round.prompt = "Updated Temporary Prompt";
-    io.to(roomId).emit("round-updated", rooms[roomId].round);
+    io.in(roomId).emit("round-updated", rooms[roomId].round);
   });
 
 });

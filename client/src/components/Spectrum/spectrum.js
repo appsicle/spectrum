@@ -1,86 +1,98 @@
-import React, { useState } from 'react';
-import './spectrum.css';
+import React, { useEffect, useState } from "react";
+import "./spectrum.css";
 
 function Spectrum(props) {
-    const [position, setPosition] = useState(0);
-    const [peers, setPeers] = useState(props.users);
+  const [markerData, setMarkerData] = useState([]);
+  const [roomData, setRoomData] = useState({
+    users: [{}],
+    unusedPrompts: [],
+    round: {
+      unusedSpeakers: [],
+      prompt: "",
+      currentUser: null,
+    },
+  });
 
-    return (
+  useEffect(() => {
+    // whenever a new user connects, add it to state array
+    console.log("mounted");
+    props.socket.on("user-connected", (roomData) => {
+      setRoomData(roomData);
+      console.log(roomData);
+    });
+
+    props.socket.on("user-disconnected", (roomData) => {
+      console.log("d");
+      setRoomData(roomData);
+      console.log(roomData);
+    });
+
+    return () => props.socket.disconnect();
+  }, []);
+
+  const updateUserPosition = () => {
+    const user = props.user;
+  };
+
+  const bars = [
+    {
+      text: "Strongly Disagree",
+      color: "red",
+    },
+    {
+      text: "Disagree",
+      color: "green",
+    },
+    {
+      text: "Somewhat Disagree",
+      color: "green",
+    },
+    {
+      text: "Neutral",
+      color: "blue",
+    },
+    {
+      text: "Somewhat Agree",
+      color: "green",
+    },
+    {
+      text: "Agree",
+      color: "green",
+    },
+    {
+      text: "Strongly Agree",
+      color: "green",
+    },
+  ];
+
+  return (
     <div className="spectrum-container">
-      <div className="strongly-disagree spectrum-item" onClick={() => {
-          setPosition(-3);
-      }}>
-        <div className="spectrum-item-title">Strongly Disagree</div>
-       {<PeerPositionMarkers peers={peers} position={-3}/>}
-       {position === -3 ? <PositionMarker/> : null}
-      </div>
-      <div className="disagree spectrum-item" onClick={() => {
-          setPosition(-2);
-      }}>
-       <div className="spectrum-item-title">Disagree</div>
-       {<PeerPositionMarkers peers={peers} position={-2}/>}
-       {position === -2 ? <PositionMarker/> : null}
-      </div>
-      <div className="somewhat-disagree spectrum-item" onClick={() => {
-          setPosition(-1);
-      }}>
-       <div className="spectrum-item-title">Somewhat Disagree</div>
-       {<PeerPositionMarkers peers={peers} position={-1}/>}
-       {position === -1 ? <PositionMarker/> : null}
-      </div>
-      <div className="undecided spectrum-item" onClick={() => {
-          setPosition(0);
-      }}>
-       <div className="spectrum-item-title">Undecided</div>
-       {<PeerPositionMarkers peers={peers} position={0}/>}
-       {position === 0 ? <PositionMarker/> : null}
-      </div>
-      <div className="somewhat-agree spectrum-item" onClick={() => {
-          setPosition(1);
-      }}>
-       <div className="spectrum-item-title">Somewhat Agree</div>
-       {<PeerPositionMarkers peers={peers} position={1}/>}
-       {position === 1 ? <PositionMarker/> : null}
-      </div>
-      <div className="agree spectrum-item" onClick={() => {
-          setPosition(2);
-      }}>
-       <div className="spectrum-item-title">Agree</div>
-       {<PeerPositionMarkers peers={peers} position={2}/>}
-       {position === 2 ? <PositionMarker/> : null}
-      </div>
-      <div className="strongly-agree spectrum-item" onClick={() => {
-          setPosition(3);
-      }}>
-       <div className="spectrum-item-title">Strongly Agree</div>
-       {<PeerPositionMarkers peers={peers} position={3}/>}
-       {position === 3 ? <PositionMarker/> : null}
-      </div>
+      {bars.map((bar, index) => (
+        <div className="spectrum-item" style={{ backgroundColor: bar.color }}>
+          <div className="spectrum-item-title">{bar.text}</div>
+          <PositionMarkers markerData={roomData.users} position={index} />
+        </div>
+      ))}
     </div>
-    );
-  }
+  );
+}
 
-  function PositionMarker(props) {
-    const name = props.name ? props.name : 'me';
-    return (
-        <span className="dot" > 
-            <img src={props.avatar} alt=""/>
-            {name}
+function PositionMarkers(props) {
+  const position = props.position ? props.position : 3;
+  const markerData = props.markerData ? props.markerData : [];
+
+  return markerData.map((user, index) => {
+    const name = user.name ? user.name : "me";
+    if (user.position === position) {
+      return (
+        <span className="dot">
+          <img src={props.avatar} alt="" />
+          {name}
         </span>
-    );
-  }
+      );
+    }
+    return null;
+  });
+}
 
-  function PeerPositionMarkers(props) {
-      const position = props.position ? props.position : 0;
-      const peers = props.peers.users ? props.peers.users : []; 
-      // error below 
-      return peers.map((peer, index) => {
-        if (peer.position === position) {
-            return <PositionMarker avatar={peer.avatar} name={peer.name}/>
-        }
-        return null;
-      });
-  }
-
-  
-  export default Spectrum;
+export default Spectrum;

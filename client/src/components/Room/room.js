@@ -4,25 +4,9 @@ import { io } from 'socket.io-client';
 import './room.css';
 
 function Room(props) {
-  const [roomData, setRoomData] = useState([]);
-  let mounted = true;
-
-  useEffect(() => {
-    
-      // whenever a new user connects, add it to state array
-    if (mounted) {
-      props.socket.on('user-connected', (roomData) => {
-        setRoomData(roomData);
-      })
-    }
-
-    return () => mounted = false;
-
-  }, []);
-
   return (
     <div className="room-container">
-      <Spectrum users={roomData} />
+      <Spectrum socket={props.socket} user={props.user} />
     </div>
   );
 }
