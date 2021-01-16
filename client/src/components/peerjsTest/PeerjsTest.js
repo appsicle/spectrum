@@ -23,28 +23,51 @@ export default function PeerjsTest() {
 
 
     const test = () => {
-        const conn = peer.connect('jojojojo' + id);
+        // const conn = peer.connect('jojojojo' + id);
 
-        // connect
-        conn.on('open', () => {
-            conn.send('hi!');
-        });
-        conn.on('data', (data) => {
-            // Will print 'hello!'
-            console.log(data);
-        });
+        // // connect
+        // conn.on('open', () => {
+        //     conn.send('hi!');
+        // });
+        // conn.on('data', (data) => {
+        //     // Will print 'hello!'
+        //     console.log(data);
+        // });
+        if (mediaStream) {
+            var call = peer.call('jojojojo' + id, mediaStream);
+            call.on('stream', function (remoteStream) {
+                // Show stream in some video/canvas element.
+                videoRefs.current[1].srcObject = remoteStream
+                videoRefs.current[1].play()
+            });
+        }else{
+            console.log("nope")
+        }
+
+
     }
 
     useEffect(() => {
 
-        peer.on('connection', (conn) => {
-            conn.on('data', (data) => {
-                // Will print 'hi!'
-                console.log(data);
-            });
-            conn.on('open', () => {
-                conn.send('hello!');
-            });
+        // peer.on('connection', (conn) => {
+        //     conn.on('data', (data) => {
+        //         // Will print 'hi!'
+        //         console.log(data);
+        //     });
+        //     conn.on('open', () => {
+        //         conn.send('hello!');
+        //     });
+        // });
+
+        peer.on('call', function (call) {
+            if (mediaStream) {
+                call.answer(mediaStream); // Answer the call with an A/V stream.
+                call.on('stream', function (remoteStream) {
+                    // Show stream in some video/canvas element.
+                    videoRefs.current[1].srcObject = remoteStream
+                    videoRefs.current[1].play()
+                });
+            }
         });
 
     }, [])
@@ -54,15 +77,14 @@ export default function PeerjsTest() {
             videoRefs.current[0].srcObject = mediaStream;
             videoRefs.current[0].play()
         }
-        
     })
 
 
     return (
         <div>
-            {uuid}
+            {`my hash: ${uuid}`}
             <input value={id} onChange={(evt) => setId(evt.target.value)} />
-            <button onClick={test}>click</button>
+            <button onClick={test}>connect to someone's hash</button>
             {[0, 0, 0, 0, 0, 0, 0, 0, 0, 0].map((_, i) => {
                 return <video
                     autoPlay
