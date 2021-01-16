@@ -11,3 +11,13 @@ label {
   width: 400px;
   margin: 0 auto;
 }
+
+.toggle-button-container {
+  width: 100%;
+  margin: 10px 0;
+}
+
+.toggle-button {
+  margin: 0 auto;
+  width: 100%;
+}
