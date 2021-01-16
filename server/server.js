@@ -97,7 +97,6 @@ io.on("connection", (socket) => {
     // option to emit rooms[roomId].round but Albert asked for the entire room data for now
     io.in(roomId).emit("round-updated", rooms[roomId]);
   });
-  });
 
 });
 
