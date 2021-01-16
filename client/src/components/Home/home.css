@@ -1,15 +1,13 @@
+label {
+  text-align: left;
+}
+
+.title {
+  text-align: center;
+  margin: 20px 0;
+}
+
 .form-container {
-  margin-top: 400px;
-}
-
-.input-container {
-  display: flex;
-  flex-direction: column;
-  width: 500px;
-  margin: 0 auto;
-}
-
-.name-input, .room-input, .submit-button {
-  width: 85%;
+  width: 400px;
   margin: 0 auto;
 }

@@ -1,32 +1,26 @@
-import React, { useState } from 'react';
-import './home.css';
+import React, { useState } from "react";
+import { Form, FormGroup, FormInput, Button } from "shards-react";
+
+import "./home.css";
 
 function Home() {
-  const [toCreate, setToCreate] = useState(false);
+  const [nickname, setNickname] = useState("");
+  const [roomNumber, setRoomNumber] = useState("");
 
   return (
     <div className="home-container">
-     <div className="form-container">
-       <div className="room-action-button-container">
-         <button className="join-game-button" onClick={() => {
-           setToCreate(false);
-         }}>
-           Join Game
-         </button>
-         <button className="create-game-button" onClick={() => {
-           setToCreate(true);
-         }}>
-           Create Game
-         </button>
-       </div>
-       <div className="input-container">
-         <input type="text" className="name-input" placeholder="Nickname" />
-         <input type="text" className="room-input" placeholder="Room Name" />
-         <button className="submit-button">
-           {toCreate ? 'Create room' : 'Join room'}
-         </button>
-       </div>
-     </div>
+      <h1 className="title">Spectrum</h1>
+      <Form className="form-container">
+      <FormGroup>
+        <label htmlFor=".username">Username</label>
+        <FormInput className="username" placeholder="Username" onChange={(e) => setNickname(e.target.value)} />
+      </FormGroup>
+      <FormGroup>
+        <label htmlFor=".room">Room</label>
+        <FormInput type="room" className="password" placeholder="Name of room" onChange={(e) => setRoomNumber(e.target.value)} />
+      </FormGroup>
+      <Button disabled={!(nickname.length && roomNumber.length)} block outline>Enter Room</Button>
+    </Form>
     </div>
   );
 }
