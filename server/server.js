@@ -36,20 +36,22 @@ io.on("connection", (socket) => {
     clients[roomId].users.push(user);
 
     socket.join(roomId);
-    io.to(roomId).emit("user-connected", user);
+    io.to(roomId).emit("user-connected", clients[roomId]);
 
     socket.on("disconnect", () => {
       console.log('disconnect');
-      io.to(roomId).emit("user-disconnected", user);
       // remove userId to list of connected clients
       clients[roomId].users = clients[roomId].users.filter((obj) => obj.id !== user.id);
+      io.to(roomId).emit("user-disconnected", clients[roomId]);
     });
   });
 
+  // unfinished
   socket.on("user-updated", (roomId, user) => {
     io.to(roomId).emit("user-updated", user);
   });
 
+  // unfinished
   // start emits to all connected sockets a round
   socket.on("start", (roomId) => {
     // all users are available to be the first speaker
@@ -71,6 +73,7 @@ io.on("connection", (socket) => {
     // onResetTimer(roomId); // emit 30 second timer
   });
 
+  // unfinished
   socket.on("next-speaker", (roomId) => {
     const numPossibleSpeakers = clients[rootId].round.unusedSpeakers.length;
     const index = Math.floor(Math.random()*numPossibleSpeakers);
