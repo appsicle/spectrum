@@ -3,10 +3,13 @@ import { Button, Container } from "shards-react";
 import Avatar from '../Avatar/avatar';
 import "spinkit/spinkit.css";
 import "./lobby.css";
+import VideoElement from '../Video/video';
 
 function Lobby(props) {
   const users = props.roomData.users;
+  const videoStreams = props.videoStreams;
 
+  // console.log("LOBBY", videoStreams)
   return (
     <div className="lobby-container">
       <div className="loader-container">

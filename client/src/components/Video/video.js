@@ -1,11 +1,16 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 
-function Video({mediaStream}) {
+function VideoElement({ mediaStream }) {
     const videoRef = useRef();
 
-    if (mediaStream && videoRef.current && !videoRef.current.srcObject) {
-        videoRef.current.srcObject = mediaStream;
-    }
+    useEffect(() => {
+        if (mediaStream && videoRef.current && !videoRef.current.srcObject) {
+            videoRef.current.srcObject = mediaStream;
+            console.log("Nice", mediaStream)
+        } else {
+            console.error("Not Nice", videoRef, mediaStream)
+        }
+    }, [])
 
     function handleCanPlay() {
         videoRef.current.play();
@@ -16,4 +21,4 @@ function Video({mediaStream}) {
     );
 }
 
-export default Video;
+export default VideoElement;
