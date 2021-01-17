@@ -82,54 +82,57 @@ io.on("connection", (socket) => {
 
   // start initializes a new round (called at the first start and every 'next question' after)
   socket.on("start", (roomId) => {
-    const numPossiblePrompts = rooms[roomId].unusedPrompts.length;
-    const promptIndex = Math.floor(Math.random() * numPossiblePrompts);
-    const prompt = rooms[roomId].unusedPrompts[promptIndex];
-    // remove the chosen prompt from the unused prompts
-    console.log(rooms[roomId].unusedPrompts)
-    rooms[roomId].unusedPrompts.splice(promptIndex, 1);
     // set prompt
-    rooms[roomId].round.prompt = prompt;
+    rooms[roomId].round.prompt = popPromptFor(roomId);
 
-    rooms[roomId].round.unusedSpeakers = [...rooms[roomId].users]; // reset unusedSpeaker to hold all users
-    const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
-    const speakerIndex = Math.floor(Math.random() * numPossibleSpeakers);
-    const speaker = rooms[roomId].round.unusedSpeakers[speakerIndex];
-    // remove the chosen speaker from the unused speakers
-    rooms[roomId].round.unusedSpeakers.splice(speakerIndex, 1);
-    console.log("unused speakers: ", rooms[roomId].round.unusedSpeakers);
+    // reset unusedSpeaker to hold all users
+    rooms[roomId].round.unusedSpeakers = [...rooms[roomId].users]; 
     // set speaker
-    rooms[roomId].round.currentUser = speaker;
+    rooms[roomId].round.currentUser = popSpeakerFor(roomId);
 
     // set round to started
     rooms[roomId].round.started = true;
 
-    // emit round information
+    // reset all user positions to be undecided (position 3)
+    resetUserPositionsFor(roomId);
+
     io.in(roomId).emit("round-updated", rooms[roomId]);
-    console.log("round updated: ", rooms[roomId]);
-    // onResetTimer(roomId); // emit 30 second timer
+    console.log("round updated from start: ", rooms[roomId]);
   });
 
   socket.on("next-speaker", (roomId) => {
-    const numPossibleSpeakers = rooms[rootId].round.unusedSpeakers.length;
-    const index = Math.floor(Math.random() * numPossibleSpeakers);
-    const speaker = users[index];
-
-    // remove the chosen first speaker from the available speakers
-    rooms[roomId].round.unusedSpeakers.splice(index, 1);
-
     // set speaker
-    rooms[roomId].round.unusedSpeakers = speaker;
+    rooms[roomId].round.currentUser = popSpeakerFor(roomId);
 
-    // option to emit rooms[roomId].round but Albert asked for the entire room data for now
     io.in(roomId).emit("round-updated", rooms[roomId]);
+    console.log("round updated from next speaker: ", rooms[roomId]);
   });
 });
 
-// // timer that runs for 30 seconds
-// function onResetTimer(roomId) {
+function popPromptFor(roomId) {
+  const numPossiblePrompts = rooms[roomId].unusedPrompts.length;
+  const promptIndex = Math.floor(Math.random() * numPossiblePrompts);
+  const prompt = rooms[roomId].unusedPrompts[promptIndex];
+  // remove the chosen prompt from the unused prompts
+  rooms[roomId].unusedPrompts.splice(promptIndex, 1);
+  return prompt;
+}
 
-// }
+function popSpeakerFor(roomId) {
+  const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
+  const speakerIndex = Math.floor(Math.random() * numPossibleSpeakers);
+  const speaker = rooms[roomId].round.unusedSpeakers[speakerIndex];
+  // remove the chosen speaker from the unused speakers
+  rooms[roomId].round.unusedSpeakers.splice(speakerIndex, 1);
+  return speaker; 
+}
+
+function resetUserPositionsFor(roomId) {
+  // reset all user positions to be undecided (position 3)
+  for (var i = 0; i < rooms[roomId].users.length; i++) {
+    rooms[roomId].users[i].position = 3;
+  }
+}
 
 server.listen(8000, () => {
   console.log("listening on 8000");
