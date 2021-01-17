@@ -6,7 +6,7 @@ import VideoElement from "../Video/video";
 import "./room.css";
 
 const CAPTURE_OPTIONS = {
-  audio: false,
+  audio: true,
   video: true,
 };
 
