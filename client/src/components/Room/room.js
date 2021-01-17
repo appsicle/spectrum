@@ -30,7 +30,7 @@ function Room(props) {
   // connect to peer
   useEffect(() => {
     console.log("MY UUID", props.user.id)
-    const peer1 = new Peer('spectrum-' + props.user.id)
+    const peer1 = new Peer('spectrum-' + props.user.id + "yert" + props.user.name)
     setPeer(peer1);
   }, [])
 
@@ -38,7 +38,7 @@ function Room(props) {
   // Call the latest new user
   useEffect(() => {
     console.info(props.newestUser)
-    if (props.newestUser && props.newestUser != props.user.id) {
+    if (props.newestUser && props.newestUser != props.user.id + "yert" + props.user.name) {
       console.log("Call: ", props.newestUser)
       navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
         .then(stream => {
@@ -47,7 +47,9 @@ function Room(props) {
           call.on('stream', function (remoteStream) {
             // Show stream in some video/canvas element.
             console.log("Caller: received response")
-            setVideoStreams((prevVideoStreams) => [...prevVideoStreams, remoteStream])
+            let uuid, name;
+            [uuid, name] = props.newestUser.slice(9).split("yert");
+            setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": stream, "UUID": uuid, "name": name }])
           })
           call.on('close', () => {
             console.log("Caller: connection closed")
@@ -75,7 +77,9 @@ function Room(props) {
             call.on('stream', function (remoteStream) {
               // Show stream in some video/canvas element.
               console.log("Answerer: received response")
-              setVideoStreams((prevVideoStreams) => [...prevVideoStreams, remoteStream])
+              let uuid, name;
+              [uuid, name] = call.peer.slice(9).split("yert");
+              setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": stream, "UUID": uuid, "name": name }])
             });
             call.on('close', () => {
               console.log("Answerer: connection closed")
@@ -92,20 +96,16 @@ function Room(props) {
 
   // Initialize own video stream
   useEffect(() => {
-    let mounted = true;
-
-    navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
-      .then(stream => {
-        if (mounted) {
+    if (props.user) {
+      navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+        .then(stream => {
           console.log("Self: stream found", stream)
-          setVideoStreams((prevVideoStreams) => [...prevVideoStreams, stream])
-        }
-      })
-      .catch(err => {
-        console.error("Self: stream not found, could not find webcam. " + err)
-      });
-
-    return () => mounted = false;
+          setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": stream, "UUID": props.user.id, "name": props.user.name }])
+        })
+        .catch(err => {
+          console.error("Self: stream not found, could not find webcam. " + err)
+        });
+    }
   }, [])
 
 
@@ -133,12 +133,15 @@ function Room(props) {
       <div className="room-container">
         <div>
           {videoStreams.map(videoStream => (
-            <VideoElement mediaStream={videoStream} />
+            <>
+              <VideoElement mediaStream={videoStream.stream} />
+              {/* <h2>{videoStream.name} {videostream.id}</h2> */}
+            </>
           ))}
         </div>
         {props.roomData.round.started ? spectrum : lobby}
       </div>
-    </>
+    </>)
 }
 
 export default Room;

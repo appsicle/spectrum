@@ -32,7 +32,7 @@ function App() {
 
     socket.on("user-connected", (roomData) => {
       setRoomData(roomData);
-      setNewestUser(roomData.users[roomData.users.length - 1].id);
+      setNewestUser(roomData.users[roomData.users.length - 1].id + "yert" + roomData.users[roomData.users.length - 1].name);
       console.log("user-connected: ", roomData);
     });
 
