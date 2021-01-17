@@ -34,7 +34,7 @@ io.on("connection", (socket) => {
       rooms[roomId] = {
         availableAvatars: avatars,
         users: [],
-        unusedPrompts: prompts, // initialize unused prompts for the room here
+        unusedPrompts: [...prompts], // initialize unused prompts for the room here
         round: {
           started: false,
           unusedSpeakers: [],
