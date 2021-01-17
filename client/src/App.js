@@ -1,8 +1,10 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Route, BrowserRouter as Router, Switch,
 } from 'react-router-dom';
+import Peer from 'peerjs';
+import { uuid as uuidv4 } from 'uuidv4';
 import Home from './components/Home/home';
 import Room from './components/Room/room';
 import { io } from 'socket.io-client';
@@ -13,7 +15,12 @@ import './App.css';
 
 const uuid = uuidv4();
 const peer = new Peer('spectrum-' + uuid);  // using public peerjs server
-let userIndex = 1;
+// let userIndex = 0;
+
+const CAPTURE_OPTIONS = {
+  audio: false,
+  video: true,
+};
 
 function App() {
   const [user, setUser] = useState(null);
@@ -30,7 +37,8 @@ function App() {
   const videoRefs = useRef([]);
   const [videos, setVideos] = useState([]);
   const [socket, setSocket] = useState(null);
-  
+  const [userIndex, setUserIndex] = useState(0)
+
   useEffect(() => {
     const socket = io(config.serverUrl, { transports: ['websocket'] });
     setSocket(socket);
@@ -38,6 +46,9 @@ function App() {
     console.log('use effect ran');
     socket.on("user-connected", (roomData) => {
       setRoomData(roomData);
+
+      // call uuid 
+
       console.log("user-connected: ", roomData);
     });
 
@@ -76,12 +87,13 @@ function App() {
 
   // Helper to configure video objects
   const addVideo = (stream) => {
+    console.info(stream)
     setVideos((prevVideos) => [...prevVideos, <video
       autoPlay
       playsInline
       ref={(el) => (videoRefs.current[userIndex] = el)}
     >{`video`}</video>])
-    // console.log(userIndex, videoRefs.current[userIndex])
+    console.log(userIndex, videoRefs.current[userIndex])
     videoRefs.current[userIndex].srcObject = stream;
     videoRefs.current[userIndex].play();
     userIndex++;
@@ -103,42 +115,16 @@ function App() {
       })
   }
 
-  // Listen for calls on my UUID
-  useEffect(() => {
-    peer.on('call', function (call) {
-      navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
-        .then(stream => {
-          console.log("Answerer: stream found")
-          call.answer(stream); // Answer the call with an A/V stream.
-          call.on('stream', function (remoteStream) {
-            // Show stream in some video/canvas element.
-            addVideo(remoteStream);
-          });
-        })
-        .catch(err => {
-          console.error("Answerer: stream not found, could not find webcam. " + err)
-        });
-    });
-  }, [])
 
-  // Initialize own video stream on video[0]
-  useEffect(() => {
-    navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
-      .then(stream => {
-        console.log("Self: stream found")
-        addVideo(stream)
-      })
-      .catch(err => {
-        console.error("Self: stream not found, could not find webcam. " + err)
-      });
-  })
 
   return (
     <div className="App">
       <Router>
         <Switch>
           <Route exact path="/" component={() => <Home socket={socket} setUser={setUser} setRoomId={setRoomId} />} />
-          <Route exact path="/room/:roomId" component={() => <Room startGame={startGame} user={user} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition} setUser={setUser} videos={videos}/>} />
+          <Route exact path="/room/:roomId" component={() => <Room startGame={startGame} user={user} roomId={roomId}
+            roomData={roomData} updateUserPosition={updateUserPosition} setUser={setUser} videos={videos}
+            setVideos={setVideos} peerjs={peer} peerjsUUID={uuid} videoRefs={videoRefs} userIndex={userIndex} setUserIndex={setUserIndex}/>} />
         </Switch>
       </Router>
     </div>
