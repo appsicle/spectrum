@@ -66,6 +66,7 @@ io.on("connection", (socket) => {
     // set prompt
     rooms[roomId].round.prompt = prompt;
 
+    rooms[roomId].round.unusedSpeakers = rooms[roomId].users; // reset unusedSpeaker to hold all users
     const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
     const speakerIndex = Math.floor(Math.random() * numPossibleSpeakers);
     const speaker = rooms[roomId].users[speakerIndex];
@@ -83,7 +84,6 @@ io.on("connection", (socket) => {
     // onResetTimer(roomId); // emit 30 second timer
   });
 
-  // todo handle the case where there's no next speaker available (will need to go to next question)
   socket.on("next-speaker", (roomId) => {
     const numPossibleSpeakers = rooms[rootId].round.unusedSpeakers.length;
     const index = Math.floor(Math.random() * numPossibleSpeakers);
