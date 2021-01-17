@@ -175,6 +175,8 @@ function Room(props) {
     />
   );
   console.log("started: ", props.roomData.round.started);
+
+  console.log(props.roomData.users);
   return (
     <>
       <div className="room-container">
@@ -182,6 +184,9 @@ function Room(props) {
           {videoStreams.map((videoStream) => (
             <div className="video-container">
               <VideoElement mediaStream={videoStream.stream} />
+              <div className="panel">
+                <h3 className={"floating-text " + (props.roomData.round.currentUser && props.roomData.round.currentUser.id === videoStream.UUID ? "yellow": "")} >{videoStream.name} </h3>
+              </div>
             </div>
           ))}
         </div>
