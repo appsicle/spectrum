@@ -34,11 +34,10 @@ function Room(props) {
     setPeer(peer1);
   }, [])
 
-
   // Call the latest new user
   useEffect(() => {
     console.info(props.newestUser)
-    if (props.newestUser && props.newestUser != props.user.id + "yert" + props.user.name) {
+    if (props.newestUser && props.newestUser !== props.user.id + "yert" + props.user.name) {
       console.log("Call: ", props.newestUser)
       navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
         .then(stream => {
@@ -49,7 +48,7 @@ function Room(props) {
             console.log("Caller: received response")
             let uuid, name;
             [uuid, name] = props.newestUser.slice(9).split("yert");
-            setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": stream, "UUID": uuid, "name": name }])
+            setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": remoteStream, "UUID": uuid, "name": name }])
           })
           call.on('close', () => {
             console.log("Caller: connection closed")
@@ -79,7 +78,7 @@ function Room(props) {
               console.log("Answerer: received response")
               let uuid, name;
               [uuid, name] = call.peer.slice(9).split("yert");
-              setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": stream, "UUID": uuid, "name": name }])
+              setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": remoteStream, "UUID": uuid, "name": name }])
             });
             call.on('close', () => {
               console.log("Answerer: connection closed")
