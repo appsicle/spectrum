@@ -11,6 +11,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
 import './App.css';
 
+const uuid = uuidv4();
+const peer = new Peer('spectrum-' + uuid);  // using public peerjs server
+let userIndex = 1;
+
 function App() {
   const [user, setUser] = useState(null);
   const [roomId, setRoomId] = useState(null);
@@ -23,6 +27,8 @@ function App() {
       currentUser: null,
     },
   });
+  const videoRefs = useRef([]);
+  const [videos, setVideos] = useState([]);
   const [socket, setSocket] = useState(null);
   
   useEffect(() => {
@@ -66,12 +72,73 @@ function App() {
     socket.emit('start', roomId);
   };
 
+
+
+  // Helper to configure video objects
+  const addVideo = (stream) => {
+    setVideos((prevVideos) => [...prevVideos, <video
+      autoPlay
+      playsInline
+      ref={(el) => (videoRefs.current[userIndex] = el)}
+    >{`video`}</video>])
+    // console.log(userIndex, videoRefs.current[userIndex])
+    videoRefs.current[userIndex].srcObject = stream;
+    videoRefs.current[userIndex].play();
+    userIndex++;
+  }
+
+  // Send out calls to specified UUID
+  const call = (id) => {
+    navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+      .then(stream => {
+        console.log("Caller: stream found")
+        var call = peer.call('spectrum-' + id, stream);
+        call.on('stream', function (remoteStream) {
+          // Show stream in some video/canvas element.
+          addVideo(remoteStream);
+        })
+      })
+      .catch(err => {
+        console.error("Caller: stream not found, could not find webcam. " + err)
+      })
+  }
+
+  // Listen for calls on my UUID
+  useEffect(() => {
+    peer.on('call', function (call) {
+      navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+        .then(stream => {
+          console.log("Answerer: stream found")
+          call.answer(stream); // Answer the call with an A/V stream.
+          call.on('stream', function (remoteStream) {
+            // Show stream in some video/canvas element.
+            addVideo(remoteStream);
+          });
+        })
+        .catch(err => {
+          console.error("Answerer: stream not found, could not find webcam. " + err)
+        });
+    });
+  }, [])
+
+  // Initialize own video stream on video[0]
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+      .then(stream => {
+        console.log("Self: stream found")
+        addVideo(stream)
+      })
+      .catch(err => {
+        console.error("Self: stream not found, could not find webcam. " + err)
+      });
+  })
+
   return (
     <div className="App">
       <Router>
         <Switch>
           <Route exact path="/" component={() => <Home socket={socket} setUser={setUser} setRoomId={setRoomId} />} />
-          <Route exact path="/room/:roomId" component={() => <Room startGame={startGame} user={user} setUser={setUser} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition} />} />
+          <Route exact path="/room/:roomId" component={() => <Room startGame={startGame} user={user} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition} setUser={setUser} videos={videos}/>} />
         </Switch>
       </Router>
     </div>
