@@ -1,9 +1,8 @@
 import "./spectrum.css";
+import Avatar from '../Avatar/avatar'
 
 function Spectrum(props) {
   const roomData = props.roomData;
-  // console.log("spectrum");
-  // console.log(roomData);
   const updateUserPosition = props.updateUserPosition;
 
   const bars = [
@@ -56,13 +55,9 @@ function PositionMarkers(props) {
   const markerData = props.markerData ? props.markerData : [];
 
   return markerData.map((user, index) => {
-    const name = user.name ? user.name : "me";
     if (user.position === position) {
       return (
-        <span className="dot">
-          <img src={props.avatar} alt="" />
-          {name}
-        </span>
+        <Avatar user={user} />
       );
     }
     return null;

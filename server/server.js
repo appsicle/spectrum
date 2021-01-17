@@ -4,6 +4,7 @@ const cors = require("cors");
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const prompts = require("./prompts.js");
+const { emit } = require("process");
 
 app.use(express.static("public"));
 app.use(cors());
@@ -50,6 +51,7 @@ io.on("connection", (socket) => {
     user.avatar = avatar;
 
     rooms[roomId].users.push(user);
+    // io.in(roomId).emit('updated-user-with-id', user.id, user);
 
     socket.join(roomId);
     io.in(roomId).emit("user-connected", rooms[roomId]);

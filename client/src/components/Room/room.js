@@ -4,6 +4,8 @@ import Lobby from '../Lobby/lobby';
 import './room.css';
 
 function Room(props) {
+  console.log(props.user);
+
   const spectrum = <Spectrum roomData={props.roomData} user={props.user} updateUserPosition={props.updateUserPosition}/>;
   const lobby = <Lobby startGame={props.startGame} roomData={props.roomData}/>;
   console.log("started: ", props.roomData.round.started);

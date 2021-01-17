@@ -25,6 +25,19 @@ function App() {
   });
   const socket = io(config.serverUrl);
 
+  const updateUser = (users) => {
+    for (let i = 0; i < users.length; ++i) {
+      const o = users[i];
+      console.log(o);
+      console.log(`o: ${o}, user: ${user}`);
+      if (o.id === user.id) {
+        setUser(o);
+        console.log('set user to ', o);
+        return;
+      }
+    }
+  }
+
   useEffect(() => {
     socket.on("user-connected", (roomData) => {
       setRoomData(roomData);
@@ -42,11 +55,20 @@ function App() {
       console.log("user-updated: ", roomData);
     });
 
+    // socket.on("update-user-with-id", (id, updatedUser) => {
+    //   if (user.id === id) {
+    //     setUser(updatedUser);
+    //   }
+    // })
+
     socket.on('round-updated', (roomData) => {
       setRoomData(roomData);
+      console.log(user);
+      const users = roomData.users;
+      updateUser(users);
       console.log("round-updated: ", roomData);
     });
-  });
+  }, [user]);
 
   const updateUserPosition = (position) => {
     console.log(user);
