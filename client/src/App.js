@@ -13,7 +13,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
 import './App.css';
 
-const uuid = uuidv4();
+const uuid = uuidv4(); // remove this eventually because we're using the uuid generated in Home
 const peer = new Peer('spectrum-' + uuid);  // using public peerjs server
 // let userIndex = 0;
 
@@ -37,7 +37,8 @@ function App() {
   const videoRefs = useRef([]);
   const [videos, setVideos] = useState([]);
   const [socket, setSocket] = useState(null);
-  const [userIndex, setUserIndex] = useState(0)
+  const [userIndex, setUserIndex] = useState(0);
+  const [userUuids, setUserUuids] = useState([]);
 
   useEffect(() => {
     const socket = io(config.serverUrl, { transports: ['websocket'] });
@@ -46,9 +47,14 @@ function App() {
     console.log('use effect ran');
     socket.on("user-connected", (roomData) => {
       setRoomData(roomData);
-
+      // update user uuids 
+      var uuids = [];
+      for (let i = 0; i < roomData.users.length; i++) {
+        uuids.push(roomData.users[i].id);
+      }
+      setUserUuids(uuids);
+      // console.log("uuids on connect", uuids);
       // call uuid 
-
       console.log("user-connected: ", roomData);
     });
 
@@ -58,6 +64,13 @@ function App() {
         console.log('disconnected entire socket');
       }
       setRoomData(roomData);
+      // update user uuids
+      var uuids = [];
+      for (let i = 0; i < roomData.users.length; i++) {
+        uuids.push(roomData.users[i].id);
+      }
+      setUserUuids(uuids);
+      // console.log("uuids on disconnect", uuids);
       console.log("user-disconnected: ", roomData);
     });
 
@@ -124,7 +137,7 @@ function App() {
           <Route exact path="/" component={() => <Home socket={socket} setUser={setUser} setRoomId={setRoomId} />} />
           <Route exact path="/room/:roomId" component={() => <Room startGame={startGame} user={user} roomId={roomId}
             roomData={roomData} updateUserPosition={updateUserPosition} setUser={setUser} videos={videos}
-            setVideos={setVideos} peerjs={peer} peerjsUUID={uuid} videoRefs={videoRefs} userIndex={userIndex} setUserIndex={setUserIndex}/>} />
+            setVideos={setVideos} peerjs={peer} peerjsUUID={uuid} videoRefs={videoRefs} userIndex={userIndex} setUserIndex={setUserIndex}/>} userUuids={userUuids} />
         </Switch>
       </Router>
     </div>
