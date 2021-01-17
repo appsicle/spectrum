@@ -130,7 +130,9 @@ function Room(props) {
       const toBeDestroyed = videoStreams.filter(
         (x) => x.UUID === props.newestDisconnect
       )[0];
-      toBeDestroyed.call.close();
+      if (toBeDestroyed && toBeDestroyed.call) {
+        toBeDestroyed.call.close();
+      }
       setVideoStreams((videoStreams) =>
         videoStreams.filter((x) => x.UUID !== props.newestDisconnect)
       );
@@ -185,7 +187,7 @@ function Room(props) {
             <div className="video-container">
               <VideoElement mediaStream={videoStream.stream} />
               <div className="panel">
-                <h3 className={"floating-text " + (props.roomData.round.currentUser && props.roomData.round.currentUser.id === videoStream.UUID ? "yellow": "")} >{videoStream.name} </h3>
+                <h3 className={"floating-text " + (props.roomData.round && props.roomData.round.currentUser && props.roomData.round.currentUser.id === videoStream.UUID ? "yellow" : "")} >{videoStream.name} </h3>
               </div>
             </div>
           ))}
