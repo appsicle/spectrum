@@ -5,19 +5,20 @@
 }
 
 .avatar-image-container {
-  margin: 20px auto;
+  margin: 20px;
   max-width: 150px;
+  text-align: center;
 }
 
 .avatar-image {
-  width: 60px;
+  width: 50px;
 }
 
 .user-name-container {
   margin: 0 auto;
   background-color: black;
   border-radius: 8px;
-  padding: 0 5px;
+  padding: 0 10px;
   text-align: center;
 }
 
@@ -25,4 +26,15 @@
   color: white;
   font-size: 16px;
   margin: 0;
+}
+
+.crown-icon {
+  position: relative;
+  display: flex;
+  color: yellow;
+  transform: translateX(-50%);
+}
+
+.is-speaker {
+  transform: translateY(-16px);
 }

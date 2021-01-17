@@ -4,7 +4,6 @@ const cors = require("cors");
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const prompts = require("./prompts.js");
-const { emit } = require("process");
 
 app.use(express.static("public"));
 app.use(cors());
@@ -34,7 +33,7 @@ io.on("connection", (socket) => {
       rooms[roomId] = {
         availableAvatars: avatars,
         users: [],
-        unusedPrompts: prompts, // initialize unused prompts for the room here
+        unusedPrompts: [...prompts], // initialize unused prompts for the room here
         round: {
           started: false,
           unusedSpeakers: [],
@@ -106,7 +105,7 @@ io.on("connection", (socket) => {
     // set round to started
     rooms[roomId].round.started = true;
 
-    // reset all user positions to be undecided (position 3)
+    // reset all user positions to be undecided (position 2)
     resetUserPositionsFor(roomId);
 
     io.in(roomId).emit("round-updated", rooms[roomId]);
@@ -124,6 +123,9 @@ io.on("connection", (socket) => {
 
 function popPromptFor(roomId) {
   const numPossiblePrompts = rooms[roomId].unusedPrompts.length;
+  if (numPossiblePrompts === 0) {
+    return "Finished all prompts!"; // can update this message later
+  }
   const promptIndex = Math.floor(Math.random() * numPossiblePrompts);
   const prompt = rooms[roomId].unusedPrompts[promptIndex];
   // remove the chosen prompt from the unused prompts
@@ -131,6 +133,7 @@ function popPromptFor(roomId) {
   return prompt;
 }
 
+// if next-speaker is accidentally called without an available next speaker, currently breaks
 function popSpeakerFor(roomId) {
   const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
   const speakerIndex = Math.floor(Math.random() * numPossibleSpeakers);
@@ -141,9 +144,9 @@ function popSpeakerFor(roomId) {
 }
 
 function resetUserPositionsFor(roomId) {
-  // reset all user positions to be undecided (position 3)
+  // reset all user positions to be undecided (position 2)
   for (var i = 0; i < rooms[roomId].users.length; i++) {
-    rooms[roomId].users[i].position = 3;
+    rooms[roomId].users[i].position = 2;
   }
 }
 

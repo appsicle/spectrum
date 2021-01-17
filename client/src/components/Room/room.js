@@ -6,7 +6,6 @@ import VideoElement from '../Video/video';
 import './room.css';
 
 
-
 const CAPTURE_OPTIONS = {
   audio: false,
   video: true,
@@ -110,22 +109,36 @@ function Room(props) {
   }, [])
 
 
-  const spectrum = <Spectrum roomData={props.roomData} user={props.user} updateUserPosition={props.updateUserPosition} />;
-  const lobby = <Lobby startGame={props.startGame} roomData={props.roomData} videoStreams={videoStreams} />;
+  const spectrum = (
+    <Spectrum
+      socket={props.socket}
+      roomId={props.roomId}
+      roomData={props.roomData}
+      user={props.user}
+      updateUserPosition={props.updateUserPosition}
+      videos={props.videos}
+    />
+  );
+  const lobby = (
+    <Lobby
+      startGame={props.startGame}
+      roomData={props.roomData}
+      videos={props.videos}
+    />
+  );
   console.log("started: ", props.roomData.round.started);
   return (
     <>
 
       <div className="room-container">
         <div>
-        {videoStreams.map(videoStream => (
-          <VideoElement mediaStream={videoStream} />
-        ))}
-      </div>
+          {videoStreams.map(videoStream => (
+            <VideoElement mediaStream={videoStream} />
+          ))}
+        </div>
         {props.roomData.round.started ? spectrum : lobby}
       </div>
     </>
-  );
 }
 
 export default Room;

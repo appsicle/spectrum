@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   FormGroup,
@@ -6,12 +6,14 @@ import {
   Button,
   ButtonGroup,
   ButtonToolbar,
+  Fade
 } from "shards-react";
-import { uuid } from 'uuidv4';
+import { v4 as uuid_v4 } from 'uuid';
 import { useHistory } from "react-router-dom";
 import './home.css';
 
 function Home(props) {
+  const [visible, setVisible] = useState(false);
   const [toCreate, setToCreate] = useState(false);
   const [nickname, setNickname] = useState("");
   const [roomNumber, setRoomNumber] = useState("");
@@ -21,7 +23,7 @@ function Home(props) {
   const submitForm = (e) => {
     e.preventDefault();
     const user = {
-      id: uuid(),
+      id: uuid_v4(),
       name: nickname,
       position: 2,
       avatar: ''
@@ -30,13 +32,15 @@ function Home(props) {
     props.setUser(user);
     props.setRoomId(roomNumber);
     history.push(`/room/${roomNumber}`);
-
-    // redirect to url/roomNumber
-
   };
+
+  useEffect(() => {
+    setVisible(!visible);
+  },[]);
 
   return (
     <div className="home-container">
+      <Fade in={visible}>
       <h1 className="title">Spectrum</h1>
       <Form className="form-container">
         <ButtonToolbar className="toggle-button-container">
@@ -76,6 +80,8 @@ function Home(props) {
           {toCreate ? 'Create New Room' : 'Join Room'}
         </Button>
       </Form>
+        </Fade>
+ 
     </div>
   );
 };

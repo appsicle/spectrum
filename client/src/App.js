@@ -30,7 +30,6 @@ function App() {
     const socket = io(config.serverUrl, { transports: ['websocket'] });
     setSocket(socket);
 
-    console.log('use effect ran');
     socket.on("user-connected", (roomData) => {
       setRoomData(roomData);
       setNewestUser(roomData.users[roomData.users.length - 1].id);
@@ -40,7 +39,6 @@ function App() {
     socket.on("user-disconnected", (roomData) => {
       if (roomData.users.length === 0) {
         socket.disconnect();
-        console.log('disconnected entire socket');
       }
       setRoomData(roomData);
       
@@ -51,12 +49,10 @@ function App() {
 
     socket.on("user-updated", (roomData) => {
       setRoomData(roomData);
-      console.log("user-updated: ", roomData);
     });
 
     socket.on('round-updated', (roomData) => {
       setRoomData(roomData);
-      console.log("round-updated: ", roomData);
     });
   }, []);
 
