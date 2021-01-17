@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Peer from 'peerjs';
-import { v4 as uuidv4 } from 'uuid';
-import { useUserMedia } from './useUserMedia';
+import uuidv4 from 'uuidv4';
 
 const CAPTURE_OPTIONS = {
     audio: false,

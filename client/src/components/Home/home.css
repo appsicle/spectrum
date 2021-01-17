@@ -1,15 +1,23 @@
+label {
+  text-align: left;
+}
+
+.title {
+  text-align: center;
+  margin: 20px 0;
+}
+
 .form-container {
-  margin-top: 400px;
-}
-
-.input-container {
-  display: flex;
-  flex-direction: column;
-  width: 500px;
+  width: 400px;
   margin: 0 auto;
 }
 
-.name-input, .room-input, .submit-button {
-  width: 85%;
+.toggle-button-container {
+  width: 100%;
+  margin: 10px 0;
+}
+
+.toggle-button {
   margin: 0 auto;
+  width: 100%;
 }
