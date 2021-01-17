@@ -3,32 +3,21 @@ const app = express();
 const cors = require('cors');
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
+import {prompts} from './prompts.js';
 
 app.use(express.static("public"));
 app.use(cors());
-// rooms => 
-// {room_id: {
-//     users: [Users], 
-//     unusedPrompts: [Prompt (probably a String)], 
-//     round: {
-//        started: false,
-//        unusedSpeakers: [User],
-//        prompt: Prompt,
-//        currentUser: User,
-//     }
-//  }}
 var rooms = {};
 
 io.on("connection", (socket) => {
   // user props: id, name, position, avatar
   // enter-room is emitted when a user joins or creates a new room
   socket.on("enter-room", (roomId, user) => {
-    console.log(roomId, user);
-    // add userId to list of rooms
+    // if this room doesn't exist, initialize it 
     if (!rooms[roomId]) {
       rooms[roomId] = {
         users: [],
-        unusedPrompts: [], // todo initialize unused prompts for the room here
+        unusedPrompts: prompts, // initialize unused prompts for the room here
         round: {
           started: false,
           unusedSpeakers: [],
@@ -42,15 +31,13 @@ io.on("connection", (socket) => {
 
     socket.join(roomId);
     io.in(roomId).emit("user-connected", rooms[roomId]);
-    console.log('emit user-connected');
-    console.log('roomId: ', roomId);
-    console.log("rooms[roomId]: ", rooms[roomId]);
+    console.log("user connected: ", rooms[roomId]);
 
     socket.on("disconnect", () => {
-      console.log('disconnect');
-      // remove userId from the room
+      // remove user from the room
       rooms[roomId].users = rooms[roomId].users.filter((obj) => obj.id !== user.id);
       io.in(roomId).emit("user-disconnected", rooms[roomId]);
+      console.log("user disconnected: ", rooms[roomId]);
     });
   });
 
@@ -65,35 +52,38 @@ io.on("connection", (socket) => {
       }
     }
 
-    // emit updated entire rooms[roomId] object
     io.in(roomId).emit("user-updated", rooms[roomId]);
     console.log('user updated: ', rooms[roomId]);
   });
 
   // start initializes a new round (called at the first start and every 'next question' after)
   socket.on("start", (roomId) => {
-    rooms[roomId].round.prompt = "Temporary Prompt"; // todo make this select a random prompt that is in unusedPrompts and remove the selected one from it
-    
+    const numPossiblePrompts = rooms[roomId].unusedPrompts.length;
+    const promptIndex = Math.floor(Math.random()*numPossiblePrompts);
+    const prompt = rooms[roomId].unusedPrompts[promptIndex];
+    // remove the chosen prompt from the unused prompts
+    rooms[roomId].unusedPrompts.splice(promptIndex, 1);
+    // set prompt
+    rooms[roomId].round.prompt = prompt;
+
     const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
-    const index = Math.floor(Math.random()*numPossibleSpeakers);
-    const speaker = rooms[roomId].users[index];
-
-    // remove the chosen first speaker from the available speakers
-    rooms[roomId].round.unusedSpeakers.splice(index, 1); 
-
-    // set first speaker
+    const speakerIndex = Math.floor(Math.random()*numPossibleSpeakers);
+    const speaker = rooms[roomId].users[speakerIndex];
+    // remove the chosen speaker from the unused speakers
+    rooms[roomId].round.unusedSpeakers.splice(speakerIndex, 1); 
+    // set speaker
     rooms[roomId].round.currentUser = speaker;
 
     // set round to started
     rooms[roomId].round.started = true;
 
     // emit round information
-    // option to emit rooms[roomId].round but Albert asked for the entire room data for now
     io.in(roomId).emit("round-updated", rooms[roomId]);
     console.log("round updated: ", rooms[roomId]);
     // onResetTimer(roomId); // emit 30 second timer
   });
 
+  // todo handle the case where there's no next speaker available (will need to go to next question)
   socket.on("next-speaker", (roomId) => {
     const numPossibleSpeakers = rooms[rootId].round.unusedSpeakers.length;
     const index = Math.floor(Math.random()*numPossibleSpeakers);
