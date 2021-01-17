@@ -1,0 +1,13 @@
+.avatar-container {
+  display: inline-block;
+}
+
+.avatar-image {
+  width: 100px;
+}
+
+.user-name-container {
+  background-color: black;
+  color: white;
+  padding: 0 5px;
+}

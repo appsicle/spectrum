@@ -24,7 +24,7 @@ function Home(props) {
       id: uuid(),
       name: nickname,
       position: 3,
-      avatar: 'https://png.pngtree.com/png-vector/20190223/ourmid/pngtree-vector-avatar-icon-png-image_695765.jpg'
+      avatar: ''
     }
     props.socket.emit('enter-room', roomNumber, user);
     props.setUser(user);
