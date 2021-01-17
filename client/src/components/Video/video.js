@@ -17,7 +17,7 @@ function VideoElement({ mediaStream }) {
     }
 
     return (
-        <video ref={videoRef} onCanPlay={handleCanPlay} autoPlay playsInline muted />
+        <video ref={videoRef} onCanPlay={handleCanPlay} autoPlay playsInline />
     );
 }
 
