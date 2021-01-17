@@ -21,6 +21,8 @@ function Room(props) {
     }
   }, [props.roomData]);
 
+  // todo create useEffect to only run when props.userUuids changes
+
   // Helper to configure video objects
   const addVideo = (stream) => {
     console.info(stream)
