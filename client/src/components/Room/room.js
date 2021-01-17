@@ -28,46 +28,41 @@ function Room(props) {
     }
   }, [props.roomData]);
 
-
-
   // connect to peer
   useEffect(() => {
     console.log("MY UUID", props.user.id)
     const peer1 = new Peer('spectrum-' + props.user.id)
     setPeer(peer1);
-    // console.log(peer1)
-
-    // return () => { if (peer) { peer.destroy() } };
   }, [])
 
-  // Call to everyone that's already in the room
+
+  // Call the latest new user
+  useEffect(() => {
+    console.info(props.newestUser)
+    if (props.newestUser && props.newestUser != props.user.id) {
+      console.log("Call: ", props.newestUser)
+      navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+        .then(stream => {
+          console.log("Caller: stream found")
+          var call = peer.call('spectrum-' + props.newestUser, stream);
+          call.on('stream', function (remoteStream) {
+            // Show stream in some video/canvas element.
+            console.log("Caller: received response")
+            setVideoStreams((prevVideoStreams) => [...prevVideoStreams, remoteStream])
+          })
+          call.on('close', () => {
+            console.log("Caller: connection closed")
+          })
+        })
+        .catch(err => {
+          console.error("Caller: stream not found, could not find webcam. " + err)
+        })
+    }
+  }, [props.newestUser])
+
+  // Init listeners for incoming peer calls
   useEffect(() => {
     if (peer && newUser) {
-
-      // Call
-      console.log("Caller: Attempting calls")
-      const userUuidsToConnect = props.userUuids.filter(x => x != props.user.id);
-      console.info(userUuidsToConnect)
-
-      for (let userUuid of userUuidsToConnect) {
-        console.log("Call: ", userUuid)
-        navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
-          .then(stream => {
-            console.log("Caller: stream found")
-            var call = peer.call('spectrum-' + userUuid, stream);
-            call.on('stream', function (remoteStream) {
-              // Show stream in some video/canvas element.
-              console.log("Caller: received response")
-              setVideoStreams((prevVideoStreams) => [...prevVideoStreams, remoteStream])
-            })
-            call.on('close', () => {
-              console.log("Caller: connection closed")
-            })
-          })
-          .catch(err => {
-            console.error("Caller: stream not found, could not find webcam. " + err)
-          })
-      }
 
       // Answer
       console.log("Answerer: Initialize")
@@ -94,56 +89,9 @@ function Room(props) {
 
       setNewUser(false);
     }
-  }, [props.userUuids])
+  }, [peer])
 
-  console.log(peer);
-
-  // Send out calls to specified UUID
-  // const call = (id) => {
-  //   if (peer) {
-  //     console.log("Caller: Sent out call to ", id)
-  //     navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
-  //       .then(stream => {
-  //         console.log("Caller: stream found")
-  //         var call = peer.call('spectrum-' + id, stream);
-  //         call.on('stream', function (remoteStream) {
-  //           // Show stream in some video/canvas element.
-  //           console.log("Caller: received response")
-  //           setVideoStreams((prevVideoStreams) => [...prevVideoStreams, stream])
-  //         })
-  //       })
-  //       .catch(err => {
-  //         console.error("Caller: stream not found, could not find webcam. " + err)
-  //       })
-  //   } else {
-  //     console.error("PEER NOT READY")
-  //   }
-  // }
-
-  // // Listen for calls on my UUID
-  // useEffect(() => {
-  //   if (peer) {
-  //     console.log("Answerer: Attached", peer)
-  //     peer.on('call', function (call) {
-  //       console.log("Answerer: Got a call")
-  //       navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
-  //         .then(stream => {
-  //           console.log("Answerer: stream found")
-  //           call.answer(stream); // Answer the call with an A/V stream.
-  //           call.on('stream', function (remoteStream) {
-  //             // Show stream in some video/canvas element.
-  //             console.log("Answerer: received response")
-  //             setVideoStreams((prevVideoStreams) => [...prevVideoStreams, stream])
-  //           });
-  //         })
-  //         .catch(err => {
-  //           console.error("Answerer: stream not found, could not find webcam. " + err)
-  //         });
-  //     });
-  //   }
-  // }, [peer])
-
-  // Initialize own video stream on video[0]
+  // Initialize own video stream
   useEffect(() => {
     let mounted = true;
 
@@ -162,22 +110,17 @@ function Room(props) {
   }, [])
 
 
-
-  // console.info("asdas", videoStreams)
-
   const spectrum = <Spectrum roomData={props.roomData} user={props.user} updateUserPosition={props.updateUserPosition} />;
   const lobby = <Lobby startGame={props.startGame} roomData={props.roomData} videoStreams={videoStreams} />;
-  // console.log("started: ", props.roomData.round.started);
+  console.log("started: ", props.roomData.round.started);
   return (
     <>
 
       <div className="room-container">
         <div>
-          a
         {videoStreams.map(videoStream => (
           <VideoElement mediaStream={videoStream} />
         ))}
-        a
       </div>
         {props.roomData.round.started ? spectrum : lobby}
       </div>

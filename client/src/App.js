@@ -24,7 +24,7 @@ function App() {
     },
   });
   const [socket, setSocket] = useState(null);
-  const [userUuids, setUserUuids] = useState([]);
+  const [newestUser, setNewestUser] = useState(null);
 
   useEffect(() => {
     const socket = io(config.serverUrl, { transports: ['websocket'] });
@@ -33,14 +33,7 @@ function App() {
     console.log('use effect ran');
     socket.on("user-connected", (roomData) => {
       setRoomData(roomData);
-      // update user uuids 
-      var uuids = [];
-      for (let i = 0; i < roomData.users.length; i++) {
-        uuids.push(roomData.users[i].id);
-      }
-      setUserUuids(uuids);
-      // console.log("uuids on connect", uuids);
-      // call uuid 
+      setNewestUser(roomData.users[roomData.users.length - 1].id);
       console.log("user-connected: ", roomData);
     });
 
@@ -50,13 +43,9 @@ function App() {
         console.log('disconnected entire socket');
       }
       setRoomData(roomData);
-      // update user uuids
-      var uuids = [];
-      for (let i = 0; i < roomData.users.length; i++) {
-        uuids.push(roomData.users[i].id);
-      }
-      setUserUuids(uuids);
-      // console.log("uuids on disconnect", uuids);
+      
+      // TODO: handle disconnect
+
       console.log("user-disconnected: ", roomData);
     });
 
@@ -82,10 +71,6 @@ function App() {
     socket.emit('start', roomId);
   };
 
-  useEffect(() => {
-    console.log("ASDASDASDASDA")
-  }, [])
-
   return (
     <div className="App">
       <Router>
@@ -94,7 +79,7 @@ function App() {
           <Route exact path="/room/:roomId"
             render={() =>
               <Room startGame={startGame} user={user} roomId={roomId}
-                roomData={roomData} updateUserPosition={updateUserPosition} setUser={setUser} userUuids={userUuids} />} />
+                roomData={roomData} updateUserPosition={updateUserPosition} setUser={setUser} newestUser={newestUser} />} />
         </Switch>
       </Router>
     </div>
