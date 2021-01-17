@@ -64,6 +64,10 @@ io.on("connection", (socket) => {
       );
       io.in(roomId).emit("user-disconnected", rooms[roomId]);
       console.log("user disconnected: ", rooms[roomId]);
+      // if there are no more users in the room, get rid of it
+      if (rooms[roomId].users.length === 0) {
+        rooms[roomId] = null;
+      }
     });
   });
 
