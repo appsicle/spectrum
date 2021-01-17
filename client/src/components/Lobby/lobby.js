@@ -11,13 +11,13 @@ function Lobby(props) {
     <div className="lobby-container">
       <div className="loader-container">
         <h2> Waiting for more players</h2>
-        <div class="spinner sk-center sk-chase">
-          <div class="sk-chase-dot"></div>
-          <div class="sk-chase-dot"></div>
-          <div class="sk-chase-dot"></div>
-          <div class="sk-chase-dot"></div>
-          <div class="sk-chase-dot"></div>
-          <div class="sk-chase-dot"></div>
+        <div className="spinner sk-center sk-chase">
+          <div className="sk-chase-dot"></div>
+          <div className="sk-chase-dot"></div>
+          <div className="sk-chase-dot"></div>
+          <div className="sk-chase-dot"></div>
+          <div className="sk-chase-dot"></div>
+          <div className="sk-chase-dot"></div>
         </div>
         <Button
           theme="primary"

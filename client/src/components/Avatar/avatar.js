@@ -4,10 +4,10 @@ import './avatar.css'
 
 function Avatar(props) {
   return (
-    <div>
+    <div className='avatar-image-container' >
       <img className="avatar-image" src={props.user.avatar} alt="" />
       <div className="user-name-container">
-        <p>{props.user.name}</p>
+        <h4>{props.user.name}</h4>
       </div>
     </div>
   );

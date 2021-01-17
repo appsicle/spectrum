@@ -7,7 +7,8 @@ const prompts = require("./prompts.js");
 
 app.use(express.static("public"));
 app.use(cors());
-var rooms = {};
+const avatarsUrl = 'https://spectrum-avatars.s3-us-west-1.amazonaws.com';
+const rooms = {};
 
 io.on("connection", (socket) => {
   // user props: id, name, position, avatar
@@ -16,17 +17,17 @@ io.on("connection", (socket) => {
     // if this room doesn't exist, initialize it
     if (!rooms[roomId]) {
       // make set of avatars available for the room temp 10 random images
-      var avatars = [
-        "https://picsum.photos/id/1/200",
-        "https://picsum.photos/id/2/200",
-        "https://picsum.photos/id/3/200",
-        "https://picsum.photos/id/4/200",
-        "https://picsum.photos/id/5/200",
-        "https://picsum.photos/id/6/200",
-        "https://picsum.photos/id/7/200",
-        "https://picsum.photos/id/8/200",
-        "https://picsum.photos/id/9/200",
-        "https://picsum.photos/id/10/200",
+      const avatars = [
+        avatarsUrl+'/beaver.png',
+        avatarsUrl+'/cat.png',
+        avatarsUrl+'/corn.png',
+        avatarsUrl+'/dog.png',
+        avatarsUrl+'/peach.png',
+        avatarsUrl+'/rabbit.png',
+        avatarsUrl+'/sacrifice.png',
+        avatarsUrl+'/koala.png',
+        avatarsUrl+'/macaw.png',
+        avatarsUrl+'/turkey.png',
       ];
       rooms[roomId] = {
         availableAvatars: avatars,
@@ -66,7 +67,7 @@ io.on("connection", (socket) => {
 
   socket.on("update-user", (roomId, user) => {
     // go through each user in the given room
-    for (var i = 0; i < rooms[roomId].users.length; i++) {
+    for (let i = 0; i < rooms[roomId].users.length; i++) {
       // if this is the user we're looking for in the room (matched by ID)
       if (rooms[roomId].users[i].id === user.id) {
         // update this user in the room

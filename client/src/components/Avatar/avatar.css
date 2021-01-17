@@ -1,13 +1,26 @@
 .avatar-container {
-  display: inline-block;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.avatar-image-container {
+  margin: 0 20px;
 }
 
 .avatar-image {
-  width: 100px;
+  width: 60px;
 }
 
 .user-name-container {
-  background-color: black;
-  color: white;
+  margin: 0 auto;
+  background-color: rgb(91 98 138);
+  border-radius: 8px;
   padding: 0 5px;
+  text-align: center;
+}
+
+.user-name-container h4 {
+  color: white;
+  font-size: 14px;
+  margin: 0;
 }
