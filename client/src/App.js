@@ -27,6 +27,8 @@ function App() {
       currentUser: null,
     },
   });
+  const videoRefs = useRef([]);
+  const [videos, setVideos] = useState([]);
   const socket = io(config.serverUrl);
 
   useEffect(() => {
@@ -67,6 +69,20 @@ function App() {
   };
 
 
+
+  // Helper to configure video objects
+  const addVideo = (stream) => {
+    setVideos((prevVideos) => [...prevVideos, <video
+      autoPlay
+      playsInline
+      ref={(el) => (videoRefs.current[userIndex] = el)}
+    >{`video`}</video>])
+    // console.log(userIndex, videoRefs.current[userIndex])
+    videoRefs.current[userIndex].srcObject = stream;
+    videoRefs.current[userIndex].play();
+    userIndex++;
+  }
+
   // Send out calls to specified UUID
   const call = (id) => {
     navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
@@ -75,9 +91,7 @@ function App() {
         var call = peer.call('spectrum-' + id, stream);
         call.on('stream', function (remoteStream) {
           // Show stream in some video/canvas element.
-          videoRefs.current[userIndex].srcObject = remoteStream
-          videoRefs.current[userIndex].play()
-          userIndex++;
+          addVideo(remoteStream);
         })
       })
       .catch(err => {
@@ -94,9 +108,7 @@ function App() {
           call.answer(stream); // Answer the call with an A/V stream.
           call.on('stream', function (remoteStream) {
             // Show stream in some video/canvas element.
-            videoRefs.current[userIndex].srcObject = remoteStream
-            videoRefs.current[userIndex].play()
-            userIndex++;
+            addVideo(remoteStream);
           });
         })
         .catch(err => {
@@ -110,8 +122,7 @@ function App() {
     navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
       .then(stream => {
         console.log("Self: stream found")
-        videoRefs.current[0].srcObject = stream;
-        videoRefs.current[0].play()
+        addVideo(stream)
       })
       .catch(err => {
         console.error("Self: stream not found, could not find webcam. " + err)
@@ -123,7 +134,7 @@ function App() {
       <Router>
         <Switch>
           <Route exact path="/" component={() => <Home socket={socket} setUser={setUser} setRoomId={setRoomId} />} />
-          <Route exact path="/room/:roomId" component={() => <Room startGame={startGame} user={user} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition} />} />
+          <Route exact path="/room/:roomId" component={() => <Room startGame={startGame} user={user} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition} videos={videos}/>} />
         </Switch>
       </Router>
     </div>

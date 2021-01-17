@@ -1,87 +1,86 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Peer from 'peerjs';
-import uuidv4 from 'uuidv4';
+import { v4 as uuidv4 } from 'uuid';
 
 const CAPTURE_OPTIONS = {
     audio: false,
     video: true,
 };
 
-
-
 const uuid = uuidv4()
 const peer = new Peer('jojojojo' + uuid);
+console.log(uuid)
 let userIndex = 1
-
-export default function GetUUID() {
-    return uuid;
-};
 
 export default function PeerjsTest() {
     const videoRefs = useRef([]);
+    const [videos, setVideos] = useState([]);
 
-    // Send out calls to 
-    const call = (id) => {
+    const [id, setId] = useState("");
+
+    const addVideo = (stream) => {
+        setVideos((prevVideos) => [...prevVideos, <video
+            autoPlay
+            playsInline
+            ref={(el) => (videoRefs.current[userIndex] = el)}
+        >{`video`}</video>])
+        // console.log(userIndex, videoRefs.current[userIndex])
+        videoRefs.current[userIndex].srcObject = stream;
+        videoRefs.current[userIndex].play();
+        userIndex++;
+    }
+
+    const test = () => {
+
         navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
             .then(stream => {
-                console.log("Caller: stream found")
+                console.log("yup1")
                 var call = peer.call('jojojojo' + id, stream);
                 call.on('stream', function (remoteStream) {
                     // Show stream in some video/canvas element.
-                    videoRefs.current[userIndex].srcObject = remoteStream
-                    videoRefs.current[userIndex].play()
-                    userIndex++;
+                    addVideo(remoteStream);
                 })
             })
             .catch(err => {
-                console.error("Caller: stream not found, could not find webcam. " + err)
+                console.log("nope1", err)
             })
     }
 
-
-    // Listen for calls to this UUID
     useEffect(() => {
-        peer.on('call', function (call) {
+
+        peer.on('call', (call) => {
             navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
-                .then(stream => {
-                    console.log("Answerer: stream found")
+                .then((stream) => {
+                    console.log("yup")
                     call.answer(stream); // Answer the call with an A/V stream.
                     call.on('stream', function (remoteStream) {
                         // Show stream in some video/canvas element.
-                        videoRefs.current[userIndex].srcObject = remoteStream
-                        videoRefs.current[userIndex].play()
-                        userIndex++;
+                        console.log("Reciever")
+                        addVideo(remoteStream);
                     });
                 })
                 .catch(err => {
-                    console.error("Answerer: stream not found, could not find webcam. " + err)
+                    console.log("nope", err)
                 });
         });
-    }, [])
+    }, []);
 
-    // Initialize own video stream
     useEffect(() => {
         navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
             .then(stream => {
-                console.log("Self: stream found")
-                videoRefs.current[0].srcObject = stream;
-                videoRefs.current[0].play()
+                addVideo(stream)
             })
             .catch(err => {
-                console.error("Self: stream not found, could not find webcam. " + err)
+                console.log("nope", err)
             });
-    })
-
+    }, [])
 
     return (
         <div>
-            {[0, 0, 0, 0, 0, 0, 0, 0, 0, 0].map((_, i) => {
-                return <video
-                    autoPlay
-                    playsInline
-                    ref={(el) => (videoRefs.current[i] = el)}
-                >{`video${i}`}</video>
-            })}
+            {`my hash: ${uuid}`}
+            <input value={id} onChange={(evt) => setId(evt.target.value)} />
+            <button onClick={test}>connect to someone's hash</button>
+            {videos}
         </div>
     )
 }
