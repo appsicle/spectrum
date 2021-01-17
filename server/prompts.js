@@ -1,4 +1,4 @@
-const prompts = [
+module.exports = [
     'Pineapple belongs on pizza.',
     'Prompt 2',
     'Prompt 3',
@@ -20,5 +20,3 @@ const prompts = [
     'Prompt 19',
     'Prompt 20',
 ];
-
-export { prompts };

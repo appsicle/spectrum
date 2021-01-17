@@ -1,22 +1,36 @@
 const express = require("express");
 const app = express();
-const cors = require('cors');
+const cors = require("cors");
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
-import { prompts } from './prompts.js';
+const prompts = require("./prompts.js");
+const { emit } = require("process");
 
 app.use(express.static("public"));
 app.use(cors());
-var rooms = {};
+const avatarsUrl = 'https://spectrum-avatars.s3-us-west-1.amazonaws.com';
+const rooms = {};
 
 io.on("connection", (socket) => {
+  console.log(socket.client.conn.server.clientsCount + " users connected");
   // user props: id, name, position, avatar
   // enter-room is emitted when a user joins or creates a new room
   socket.on("enter-room", (roomId, user) => {
-    // if this room doesn't exist, initialize it 
+    // if this room doesn't exist, initialize it
     if (!rooms[roomId]) {
       // make set of avatars available for the room temp 10 random images
-      var avatars = ["https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200"];
+      const avatars = [
+        avatarsUrl+'/beaver.png',
+        avatarsUrl+'/cat.png',
+        avatarsUrl+'/corn.png',
+        avatarsUrl+'/dog.png',
+        avatarsUrl+'/peach.png',
+        avatarsUrl+'/rabbit.png',
+        avatarsUrl+'/sacrifice.png',
+        avatarsUrl+'/koala.png',
+        avatarsUrl+'/macaw.png',
+        avatarsUrl+'/turkey.png',
+      ];
       rooms[roomId] = {
         availableAvatars: avatars,
         users: [],
@@ -24,9 +38,9 @@ io.on("connection", (socket) => {
         round: {
           started: false,
           unusedSpeakers: [],
-          prompt: '',
+          prompt: "",
           currentUser: null,
-        }
+        },
       };
     }
 
@@ -44,8 +58,21 @@ io.on("connection", (socket) => {
     console.log("user connected: ", rooms[roomId]);
 
     socket.on("disconnect", () => {
-      // remove user from the room
-      rooms[roomId].users = rooms[roomId].users.filter((obj) => obj.id !== user.id);
+      // remove user from the room users list
+      rooms[roomId].users = rooms[roomId].users.filter(
+        (obj) => obj.id !== user.id
+      );
+      // if there are no more users in the room, get rid of it
+      if (rooms[roomId].users.length === 0) {
+        rooms[roomId] = null;
+        return;
+      }
+      rooms[roomId].availableAvatars.push(user.avatar); // readd avatar to available list when user disconnects
+      rooms[roomId].round.unusedSpeakers = rooms[roomId].round.unusedSpeakers.filter(
+        (obj) => obj.id !== user.id
+      ); // remove user from unusedSpeakers in case it is mid round and they haven't spoken yet and are leaving
+      rooms[roomId].round.currentUser = popSpeakerFor(roomId); // if the user disconnecting was the currentUser/speaker, set this to be someone new
+
       io.in(roomId).emit("user-disconnected", rooms[roomId]);
       console.log("user disconnected: ", rooms[roomId]);
     });
@@ -53,68 +80,72 @@ io.on("connection", (socket) => {
 
   socket.on("update-user", (roomId, user) => {
     // go through each user in the given room
-    for (var i = 0; i < rooms[roomId].users.length; i++) {
+    for (let i = 0; i < rooms[roomId].users.length; i++) {
       // if this is the user we're looking for in the room (matched by ID)
       if (rooms[roomId].users[i].id === user.id) {
-        // update this user in the room 
+        // update this user in the room
         rooms[roomId].users[i] = user;
         break;
       }
     }
 
     io.in(roomId).emit("user-updated", rooms[roomId]);
-    console.log('user updated: ', rooms[roomId]);
+    console.log("user updated: ", rooms[roomId]);
   });
 
   // start initializes a new round (called at the first start and every 'next question' after)
   socket.on("start", (roomId) => {
-    const numPossiblePrompts = rooms[roomId].unusedPrompts.length;
-    const promptIndex = Math.floor(Math.random() * numPossiblePrompts);
-    const prompt = rooms[roomId].unusedPrompts[promptIndex];
-    // remove the chosen prompt from the unused prompts
-    rooms[roomId].unusedPrompts.splice(promptIndex, 1);
     // set prompt
-    rooms[roomId].round.prompt = prompt;
+    rooms[roomId].round.prompt = popPromptFor(roomId);
 
-    rooms[roomId].round.unusedSpeakers = rooms[roomId].users; // reset unusedSpeaker to hold all users
-    const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
-    const speakerIndex = Math.floor(Math.random() * numPossibleSpeakers);
-    const speaker = rooms[roomId].users[speakerIndex];
-    // remove the chosen speaker from the unused speakers
-    rooms[roomId].round.unusedSpeakers.splice(speakerIndex, 1);
+    // reset unusedSpeaker to hold all users
+    rooms[roomId].round.unusedSpeakers = [...rooms[roomId].users]; 
     // set speaker
-    rooms[roomId].round.currentUser = speaker;
+    rooms[roomId].round.currentUser = popSpeakerFor(roomId);
 
     // set round to started
     rooms[roomId].round.started = true;
 
-    // emit round information
+    // reset all user positions to be undecided (position 3)
+    resetUserPositionsFor(roomId);
+
     io.in(roomId).emit("round-updated", rooms[roomId]);
-    console.log("round updated: ", rooms[roomId]);
-    // onResetTimer(roomId); // emit 30 second timer
+    console.log("round updated from start: ", rooms[roomId]);
   });
 
   socket.on("next-speaker", (roomId) => {
-    const numPossibleSpeakers = rooms[rootId].round.unusedSpeakers.length;
-    const index = Math.floor(Math.random() * numPossibleSpeakers);
-    const speaker = users[index];
-
-    // remove the chosen first speaker from the available speakers
-    rooms[roomId].round.unusedSpeakers.splice(index, 1);
-
     // set speaker
-    rooms[roomId].round.unusedSpeakers = speaker;
+    rooms[roomId].round.currentUser = popSpeakerFor(roomId);
 
-    // option to emit rooms[roomId].round but Albert asked for the entire room data for now
     io.in(roomId).emit("round-updated", rooms[roomId]);
+    console.log("round updated from next speaker: ", rooms[roomId]);
   });
-
 });
 
-// // timer that runs for 30 seconds
-// function onResetTimer(roomId) {
+function popPromptFor(roomId) {
+  const numPossiblePrompts = rooms[roomId].unusedPrompts.length;
+  const promptIndex = Math.floor(Math.random() * numPossiblePrompts);
+  const prompt = rooms[roomId].unusedPrompts[promptIndex];
+  // remove the chosen prompt from the unused prompts
+  rooms[roomId].unusedPrompts.splice(promptIndex, 1);
+  return prompt;
+}
 
-// }
+function popSpeakerFor(roomId) {
+  const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
+  const speakerIndex = Math.floor(Math.random() * numPossibleSpeakers);
+  const speaker = rooms[roomId].round.unusedSpeakers[speakerIndex];
+  // remove the chosen speaker from the unused speakers
+  rooms[roomId].round.unusedSpeakers.splice(speakerIndex, 1);
+  return speaker; 
+}
+
+function resetUserPositionsFor(roomId) {
+  // reset all user positions to be undecided (position 3)
+  for (var i = 0; i < rooms[roomId].users.length; i++) {
+    rooms[roomId].users[i].position = 3;
+  }
+}
 
 server.listen(8000, () => {
   console.log("listening on 8000");

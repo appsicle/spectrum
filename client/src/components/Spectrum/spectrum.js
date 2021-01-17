@@ -1,39 +1,30 @@
 import "./spectrum.css";
+import Avatar from '../Avatar/avatar'
 
 function Spectrum(props) {
   const roomData = props.roomData;
-  // console.log("spectrum");
-  // console.log(roomData);
   const updateUserPosition = props.updateUserPosition;
 
   const bars = [
     {
       text: "Strongly Disagree",
-      color: "red",
+      color: "rgba(230, 34, 30, 0.6)",
     },
     {
       text: "Disagree",
-      color: "green",
-    },
-    {
-      text: "Somewhat Disagree",
-      color: "green",
+      color: "rgba(255, 115, 1, 0.6)",
     },
     {
       text: "Neutral",
-      color: "blue",
-    },
-    {
-      text: "Somewhat Agree",
-      color: "green",
+      color: "rgba(254, 191, 0, 0.6)",
     },
     {
       text: "Agree",
-      color: "green",
+      color: "rgba(200, 220, 0, 0.6)",
     },
     {
       text: "Strongly Agree",
-      color: "green",
+      color: "rgba(30, 148, 62, 0.6)",
     },
   ];
 
@@ -56,13 +47,9 @@ function PositionMarkers(props) {
   const markerData = props.markerData ? props.markerData : [];
 
   return markerData.map((user, index) => {
-    const name = user.name ? user.name : "me";
     if (user.position === position) {
       return (
-        <span className="dot">
-          <img src={props.avatar} alt="" />
-          {name}
-        </span>
+        <Avatar user={user} />
       );
     }
     return null;
