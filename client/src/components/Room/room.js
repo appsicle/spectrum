@@ -34,11 +34,10 @@ function Room(props) {
     setPeer(peer1);
   }, [])
 
-
   // Call the latest new user
   useEffect(() => {
     console.info(props.newestUser)
-    if (props.newestUser && props.newestUser != props.user.id + "yert" + props.user.name) {
+    if (props.newestUser && props.newestUser !== props.user.id + "yert" + props.user.name) {
       console.log("Call: ", props.newestUser)
       navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
         .then(stream => {
