@@ -123,6 +123,9 @@ io.on("connection", (socket) => {
 
 function popPromptFor(roomId) {
   const numPossiblePrompts = rooms[roomId].unusedPrompts.length;
+  if (numPossiblePrompts === 0) {
+    return "Finished all prompts!"; // can update this message later
+  }
   const promptIndex = Math.floor(Math.random() * numPossiblePrompts);
   const prompt = rooms[roomId].unusedPrompts[promptIndex];
   // remove the chosen prompt from the unused prompts
@@ -130,6 +133,7 @@ function popPromptFor(roomId) {
   return prompt;
 }
 
+// if next-speaker is accidentally called without an available next speaker, currently breaks
 function popSpeakerFor(roomId) {
   const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
   const speakerIndex = Math.floor(Math.random() * numPossibleSpeakers);
