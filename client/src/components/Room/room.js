@@ -48,8 +48,8 @@ function Room(props) {
             // Show stream in some video/canvas element.
             console.log("Caller: received response")
             let uuid, name;
-            [uuid, name] = props.newestUser.slice(9).split("yert");
-            setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": stream, "UUID": uuid, "name": name }])
+            [uuid, name] = props.newestUser.split("yert");
+            setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": remoteStream, "UUID": uuid, "name": name, "call": call }])
           })
           call.on('close', () => {
             console.log("Caller: connection closed")
@@ -79,7 +79,7 @@ function Room(props) {
               console.log("Answerer: received response")
               let uuid, name;
               [uuid, name] = call.peer.slice(9).split("yert");
-              setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": stream, "UUID": uuid, "name": name }])
+              setVideoStreams((prevVideoStreams) => [...prevVideoStreams, { "stream": remoteStream, "UUID": uuid, "name": name , "call": call}])
             });
             call.on('close', () => {
               console.log("Answerer: connection closed")
@@ -93,6 +93,17 @@ function Room(props) {
       setNewUser(false);
     }
   }, [peer])
+
+  useEffect(() => {
+
+    if (props.newestDisconnect) {
+
+      console.log(videoStreams, props.newestDisconnect, videoStreams.filter(x => x.UUID !== props.newestDisconnect))
+      const toBeDestroyed = videoStreams.filter(x => x.UUID === props.newestDisconnect)[0];
+      toBeDestroyed.call.close()
+      setVideoStreams(videoStreams => videoStreams.filter(x => x.UUID !== props.newestDisconnect))
+    }
+  }, [props.newestDisconnect])
 
   // Initialize own video stream
   useEffect(() => {
@@ -135,7 +146,7 @@ function Room(props) {
           {videoStreams.map(videoStream => (
             <>
               <VideoElement mediaStream={videoStream.stream} />
-              {/* <h2>{videoStream.name} {videostream.id}</h2> */}
+              {/* <h2>{videoStream.name} {videoStream.UUID}</h2> */}
             </>
           ))}
         </div>

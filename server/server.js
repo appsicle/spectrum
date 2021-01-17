@@ -72,8 +72,8 @@ io.on("connection", (socket) => {
       ); // remove user from unusedSpeakers in case it is mid round and they haven't spoken yet and are leaving
       rooms[roomId].round.currentUser = popSpeakerFor(roomId); // if the user disconnecting was the currentUser/speaker, set this to be someone new
 
-      io.in(roomId).emit("user-disconnected", rooms[roomId]);
-      console.log("user disconnected: ", rooms[roomId]);
+      io.in(roomId).emit("user-disconnected", {"roomData": rooms[roomId], "userid": user.id});
+      console.log("user disconnected: ", {"roomData": rooms[roomId], "userid": user.id});
     });
   });
 
