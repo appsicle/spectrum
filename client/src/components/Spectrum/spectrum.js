@@ -40,7 +40,7 @@ function Spectrum(props) {
   return (
     <div className="spectrum-container">
       {bars.map((bar, index) => (
-        <div className="spectrum-item" style={{ backgroundColor: bar.color }} onClick={()=> {
+        <div className="spectrum-item" style={{ backgroundColor: bar.color }} onClick={() => {
           updateUserPosition(index);
         }}>
           <div className="spectrum-item-title">{bar.text}</div>

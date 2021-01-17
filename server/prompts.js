@@ -21,4 +21,4 @@ const prompts = [
     'Prompt 20',
 ];
 
-export {prompts};
+export { prompts };

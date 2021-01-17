@@ -39,18 +39,18 @@ function Home(props) {
     <div className="home-container">
       <h1 className="title">Spectrum</h1>
       <Form className="form-container">
-      <ButtonToolbar className="toggle-button-container">
-        <ButtonGroup className="toggle-button">
-          <Button theme="light" onClick={(e) => {
-            e.preventDefault();
-            setToCreate(false);
-          }} active={!toCreate} outline>Join Room</Button>
-          <Button theme="light" onClick={(e) => {
-            e.preventDefault();
-            setToCreate(true);
-          }} active={toCreate} outline>Create Room</Button>
-        </ButtonGroup>
-      </ButtonToolbar>
+        <ButtonToolbar className="toggle-button-container">
+          <ButtonGroup className="toggle-button">
+            <Button theme="light" onClick={(e) => {
+              e.preventDefault();
+              setToCreate(false);
+            }} active={!toCreate} outline>Join Room</Button>
+            <Button theme="light" onClick={(e) => {
+              e.preventDefault();
+              setToCreate(true);
+            }} active={toCreate} outline>Create Room</Button>
+          </ButtonGroup>
+        </ButtonToolbar>
         <FormGroup>
           <label htmlFor=".username">Username</label>
           <FormInput
@@ -71,7 +71,7 @@ function Home(props) {
           disabled={!(nickname.length && roomNumber.length)}
           block
           outline
-          onClick={(e) => {submitForm(e)}}
+          onClick={(e) => { submitForm(e) }}
         >
           {toCreate ? 'Create New Room' : 'Join Room'}
         </Button>

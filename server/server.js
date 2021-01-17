@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors');
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
-import {prompts} from './prompts.js';
+import { prompts } from './prompts.js';
 
 app.use(express.static("public"));
 app.use(cors());
@@ -59,7 +59,7 @@ io.on("connection", (socket) => {
   // start initializes a new round (called at the first start and every 'next question' after)
   socket.on("start", (roomId) => {
     const numPossiblePrompts = rooms[roomId].unusedPrompts.length;
-    const promptIndex = Math.floor(Math.random()*numPossiblePrompts);
+    const promptIndex = Math.floor(Math.random() * numPossiblePrompts);
     const prompt = rooms[roomId].unusedPrompts[promptIndex];
     // remove the chosen prompt from the unused prompts
     rooms[roomId].unusedPrompts.splice(promptIndex, 1);
@@ -67,10 +67,10 @@ io.on("connection", (socket) => {
     rooms[roomId].round.prompt = prompt;
 
     const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
-    const speakerIndex = Math.floor(Math.random()*numPossibleSpeakers);
+    const speakerIndex = Math.floor(Math.random() * numPossibleSpeakers);
     const speaker = rooms[roomId].users[speakerIndex];
     // remove the chosen speaker from the unused speakers
-    rooms[roomId].round.unusedSpeakers.splice(speakerIndex, 1); 
+    rooms[roomId].round.unusedSpeakers.splice(speakerIndex, 1);
     // set speaker
     rooms[roomId].round.currentUser = speaker;
 
@@ -86,11 +86,11 @@ io.on("connection", (socket) => {
   // todo handle the case where there's no next speaker available (will need to go to next question)
   socket.on("next-speaker", (roomId) => {
     const numPossibleSpeakers = rooms[rootId].round.unusedSpeakers.length;
-    const index = Math.floor(Math.random()*numPossibleSpeakers);
+    const index = Math.floor(Math.random() * numPossibleSpeakers);
     const speaker = users[index];
 
     // remove the chosen first speaker from the available speakers
-    rooms[roomId].round.unusedSpeakers.splice(index, 1); 
+    rooms[roomId].round.unusedSpeakers.splice(index, 1);
 
     // set speaker
     rooms[roomId].round.unusedSpeakers = speaker;
