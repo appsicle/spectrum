@@ -13,13 +13,12 @@ const CAPTURE_OPTIONS = {
 const uuid = uuidv4()
 const peer = new Peer('jojojojo' + uuid);
 console.log(uuid)
+let userIndex = 1
 
 export default function PeerjsTest() {
     const videoRefs = useRef([]);
-    const mediaStream = useUserMedia(CAPTURE_OPTIONS);
 
     const [id, setId] = useState("");
-
 
 
     const test = () => {
@@ -33,16 +32,21 @@ export default function PeerjsTest() {
         //     // Will print 'hello!'
         //     console.log(data);
         // });
-        if (mediaStream) {
-            var call = peer.call('jojojojo' + id, mediaStream);
-            call.on('stream', function (remoteStream) {
-                // Show stream in some video/canvas element.
-                videoRefs.current[1].srcObject = remoteStream
-                videoRefs.current[1].play()
-            });
-        }else{
-            console.log("nope")
-        }
+
+        navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+            .then(stream => {
+                console.log("yup1")
+                var call = peer.call('jojojojo' + id, stream);
+                call.on('stream', function (remoteStream) {
+                    // Show stream in some video/canvas element.
+                    videoRefs.current[userIndex].srcObject = remoteStream
+                    videoRefs.current[userIndex].play()
+                    userIndex++;
+                })
+            })
+            .catch(err => {
+                console.log("nope1", err)
+            })
 
 
     }
@@ -60,23 +64,34 @@ export default function PeerjsTest() {
         // });
 
         peer.on('call', function (call) {
-            if (mediaStream) {
-                call.answer(mediaStream); // Answer the call with an A/V stream.
-                call.on('stream', function (remoteStream) {
-                    // Show stream in some video/canvas element.
-                    videoRefs.current[1].srcObject = remoteStream
-                    videoRefs.current[1].play()
+            navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+                .then(stream => {
+                    console.log("yup")
+                    call.answer(stream); // Answer the call with an A/V stream.
+                    call.on('stream', function (remoteStream) {
+                        // Show stream in some video/canvas element.
+                        videoRefs.current[userIndex].srcObject = remoteStream
+                        videoRefs.current[userIndex].play()
+                        userIndex++;
+                    });
+                })
+                .catch(err => {
+                    console.log("nope", err)
+
                 });
-            }
         });
 
     }, [])
 
     useEffect(() => {
-        if (mediaStream && videoRefs.current[0] && !videoRefs.current[0].srcObject) {
-            videoRefs.current[0].srcObject = mediaStream;
-            videoRefs.current[0].play()
-        }
+        navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+            .then(stream => {
+                videoRefs.current[0].srcObject = stream;
+                videoRefs.current[0].play()
+            })
+            .catch(err => {
+                console.log("nope", err)
+            });
     })
 
 
