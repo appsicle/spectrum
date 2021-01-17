@@ -6,7 +6,7 @@ import VideoElement from "../Video/video";
 import "./room.css";
 
 const CAPTURE_OPTIONS = {
-  audio: true,
+  audio: false,
   video: true,
 };
 
@@ -166,7 +166,7 @@ function Room(props) {
   return (
     <>
       <div className="room-container">
-        <div className="videos-container">
+        <div className={'videos-container ' + (props.roomData.users.length >= 5 ? 'max-five' : 'auto-fit')}>
           {videoStreams.map((videoStream) => (
             <div className="video-container">
               <VideoElement mediaStream={videoStream.stream} />

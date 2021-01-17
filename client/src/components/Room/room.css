@@ -13,9 +13,12 @@
 .videos-container {
     display: grid;
     height: 50%;
-    grid-template-columns: repeat(5, minmax(250px, 1fr));
 }
 
-video {
+.auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
 
+.max-five {
+    grid-template-columns: repeat(5, minmax(250px, 1fr));
 }
