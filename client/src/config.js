@@ -1,3 +1,3 @@
 module.exports = {
-  serverUrl: 'http://ec2-54-177-6-53.us-west-1.compute.amazonaws.com:8000'
+  serverUrl: 'https://64cf544978a0.ngrok.io'
 }
