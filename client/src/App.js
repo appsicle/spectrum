@@ -29,29 +29,23 @@ function App() {
     const socket = io(config.serverUrl, { transports: ['websocket'] });
     setSocket(socket);
 
-    console.log('use effect ran');
     socket.on("user-connected", (roomData) => {
       setRoomData(roomData);
-      console.log("user-connected: ", roomData);
     });
 
     socket.on("user-disconnected", (roomData) => {
       if (roomData.users.length === 0) {
         socket.disconnect();
-        console.log('disconnected entire socket');
       }
       setRoomData(roomData);
-      console.log("user-disconnected: ", roomData);
     });
 
     socket.on("user-updated", (roomData) => {
       setRoomData(roomData);
-      console.log("user-updated: ", roomData);
     });
 
     socket.on('round-updated', (roomData) => {
       setRoomData(roomData);
-      console.log("round-updated: ", roomData);
     });
   }, []);
 
@@ -70,8 +64,8 @@ function App() {
     <div className="App">
       <Router>
         <Switch>
-          <Route exact path="/" component={() => <Home socket={socket} setUser={setUser} setRoomId={setRoomId} />} />
-          <Route exact path="/room/:roomId" component={() => <Room socket={socket} startGame={startGame} user={user} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition} setUser={setUser}/>} />
+          <Route exact path="/" render={() => <Home socket={socket} setUser={setUser} setRoomId={setRoomId} />} />
+          <Route exact path="/room/:roomId" render={() => <Room socket={socket} startGame={startGame} user={user} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition} setUser={setUser}/>} />
         </Switch>
       </Router>
     </div>

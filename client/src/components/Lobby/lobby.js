@@ -1,11 +1,16 @@
-import React from "react";
-import { Button, Container } from "shards-react";
-import Avatar from '../Avatar/avatar';
+import React, { useState, useEffect } from "react";
+import { Button, Fade } from "shards-react";
+import Avatar from "../Avatar/avatar";
 import "spinkit/spinkit.css";
 import "./lobby.css";
 
 function Lobby(props) {
+  const [visible, setVisible] = useState(false);
   const users = props.roomData.users;
+
+  useEffect(() => {
+    setVisible(!visible);
+  },[]);
 
   return (
     <div className="lobby-container">
@@ -30,7 +35,9 @@ function Lobby(props) {
       </div>
       <div className="avatar-container">
         {users.map((user, index) => (
-          <Avatar key={index} user={user} />
+          <Fade key={index} in={visible}>
+            <Avatar key={index} user={user} />
+          </Fade>
         ))}
       </div>
     </div>

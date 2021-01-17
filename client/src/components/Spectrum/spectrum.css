@@ -39,6 +39,17 @@
   margin-left: 10px;
 }
 
-.spectrum-item .avatar-image-container {
-  margin: 20px auto;
+.avatars-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.modal-header {
+    margin: 0 auto;
+}
+
+.mobal-body-text{
+    font-weight: 400px;
+    margin: 0 auto;
 }
