@@ -28,18 +28,23 @@ function Spectrum(props) {
     },
   ];
 
+  // important note: ability to change to next speaker must be disabled when roomData.round.unusedSpeakers is empty
+  // otherwise, the whole application will crash if you select that lmao
+  // next prompt button is going only be shown to the current speaker just for organized control over the room 
   return (
     <div>
       
       {roomData.round.prompt}
       {roomData.round.currentUser.name}
       <div onClick={()=> {
-        console.log(props.roomId);
         props.socket.emit("start", props.roomId);
         console.log('next prompt boii');
-      }}>CLICK ME</div>
+      }}>CLICK ME FOR NEXT PROMPT</div>
+            <div onClick={()=> {
+        props.socket.emit("next-speaker", props.roomId);
+        console.log('next speaker boii');
+      }}>CLICK ME FOR NEXT SPEAKER</div>
     <div className="spectrum-container">
-    
       {bars.map((bar, index) => (
         <div className="spectrum-item" style={{ backgroundColor: bar.color }} onClick={() => {
           updateUserPosition(index);
