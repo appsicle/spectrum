@@ -49,7 +49,7 @@ function Spectrum(props) {
       ))}
     </div>
   );
-}
+};
 
 function PositionMarkers(props) {
   const position = props.position;
@@ -67,6 +67,6 @@ function PositionMarkers(props) {
     }
     return null;
   });
-}
+};
 
 export default Spectrum;

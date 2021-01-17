@@ -41,12 +41,12 @@ function App() {
     socket.on("user-updated", (roomData) => {
       setRoomData(roomData);
       console.log("user-updated: ", roomData);
-    })
+    });
 
     socket.on('round-updated', (roomData) => {
       setRoomData(roomData);
       console.log("round-updated: ", roomData);
-    })
+    });
   });
 
   const updateUserPosition = (position) => {
@@ -61,7 +61,7 @@ function App() {
 
   const startGame = () => {
     socket.emit('start', roomId);
-  }
+  };
 
   return (
     <div className="App">
@@ -73,6 +73,6 @@ function App() {
       </Router>
     </div>
   );
-}
+};
 
 export default App;
