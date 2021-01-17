@@ -1,18 +1,44 @@
+.bottom-container {
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.prompt-container {
+  height: 10%;
+  text-align: center;
+}
+
 .spectrum-container {
-    text-align: center;
-    display: flex;
-    align-self: center;
-    height: 50%;
-    width: 100%;
-    max-width: 4000px;
+  text-align: center;
+  display: flex;
+  align-self: center;
+  height: 100%;
+  width: 100%;
+  max-width: 4000px;
 }
 
 .spectrum-item {
-    width: 100%;
+  width: 100%;
 }
 
 .spectrum-item-title {
-    color: #2b2b2b;
-    margin: 20px 0;
-    font-size: 34px;
+  color: #2b2b2b;
+  margin: 20px 0;
+  font-size: 34px;
+}
+
+.skip-buttons {
+  position: absolute !important;
+  right: 50% !important;
+  bottom: 20px !important;
+  transform: translateX(50%) !important;
+}
+
+.skip-button-text {
+  margin-left: 10px;
+}
+
+.spectrum-item .avatar-image-container {
+  margin: 20px auto;
 }

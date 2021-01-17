@@ -4,7 +4,6 @@ const cors = require("cors");
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const prompts = require("./prompts.js");
-const { emit } = require("process");
 
 app.use(express.static("public"));
 app.use(cors());
