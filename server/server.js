@@ -58,16 +58,23 @@ io.on("connection", (socket) => {
     console.log("user connected: ", rooms[roomId]);
 
     socket.on("disconnect", () => {
-      // remove user from the room
+      // remove user from the room users list
       rooms[roomId].users = rooms[roomId].users.filter(
         (obj) => obj.id !== user.id
       );
-      io.in(roomId).emit("user-disconnected", rooms[roomId]);
-      console.log("user disconnected: ", rooms[roomId]);
       // if there are no more users in the room, get rid of it
       if (rooms[roomId].users.length === 0) {
         rooms[roomId] = null;
+        return;
       }
+      rooms[roomId].availableAvatars.push(user.avatar); // readd avatar to available list when user disconnects
+      rooms[roomId].round.unusedSpeakers = rooms[roomId].round.unusedSpeakers.filter(
+        (obj) => obj.id !== user.id
+      ); // remove user from unusedSpeakers in case it is mid round and they haven't spoken yet and are leaving
+      rooms[roomId].round.currentUser = popSpeakerFor(roomId); // if the user disconnecting was the currentUser/speaker, set this to be someone new
+
+      io.in(roomId).emit("user-disconnected", rooms[roomId]);
+      console.log("user disconnected: ", rooms[roomId]);
     });
   });
 
