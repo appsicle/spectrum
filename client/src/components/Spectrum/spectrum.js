@@ -77,9 +77,9 @@ function Spectrum(props) {
       </Modal>
 
       <div className="prompt-container">
-        <h6>
-          {roomData.round.prompt}, speaker: {currentUser.id}, you: {myUser.id}
-        </h6>
+        <h1>
+          {roomData.round.prompt}
+        </h1>
       </div>
       <div className="spectrum-container">
         {bars.map((bar, index) => (
@@ -111,7 +111,7 @@ function Spectrum(props) {
             disabled={roomData.round.currentUser.id !== props.user.id}
           >
             <FontAwesomeIcon icon={faFastForward} />
-            <span className="skip-button-text">Skip prompt</span>
+            <span className="skip-button-text">Next prompt</span>
           </Button>
           <Button
             theme="secondary"
@@ -119,7 +119,7 @@ function Spectrum(props) {
             onClick={() => {
               props.socket.emit("next-speaker", props.roomId);
             }}
-            disabled={roomData.round.currentUser.id !== props.user.id}
+            disabled={roomData.round.currentUser.id !== props.user.id || !roomData.round.unusedSpeakers.length}
           >
             <FontAwesomeIcon icon={faComments} />
             <span className="skip-button-text"> Next speaker</span>

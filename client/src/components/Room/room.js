@@ -131,17 +131,20 @@ function Room(props) {
     <>
 
       <div className="room-container">
-        <div>
+        <div className="videos-container">
+          <div className="video-container">
           {videoStreams.map(videoStream => (
             <>
               <VideoElement mediaStream={videoStream.stream} />
               {/* <h2>{videoStream.name} {videostream.id}</h2> */}
             </>
           ))}
+          </div>
         </div>
         {props.roomData.round.started ? spectrum : lobby}
       </div>
-    </>)
+    </>
+  );
 }
 
 export default Room;

@@ -75,7 +75,7 @@ function App() {
           <Route exact path="/room/:roomId"
             render={() =>
               <Room startGame={startGame} user={user} roomId={roomId}
-                roomData={roomData} updateUserPosition={updateUserPosition} setUser={setUser} newestUser={newestUser} />} />
+                roomData={roomData} updateUserPosition={updateUserPosition} setUser={setUser} newestUser={newestUser} socket={socket} />} />
         </Switch>
       </Router>
     </div>
