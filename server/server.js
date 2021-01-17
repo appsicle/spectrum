@@ -106,7 +106,7 @@ io.on("connection", (socket) => {
     // set round to started
     rooms[roomId].round.started = true;
 
-    // reset all user positions to be undecided (position 3)
+    // reset all user positions to be undecided (position 2)
     resetUserPositionsFor(roomId);
 
     io.in(roomId).emit("round-updated", rooms[roomId]);
@@ -141,9 +141,9 @@ function popSpeakerFor(roomId) {
 }
 
 function resetUserPositionsFor(roomId) {
-  // reset all user positions to be undecided (position 3)
+  // reset all user positions to be undecided (position 2)
   for (var i = 0; i < rooms[roomId].users.length; i++) {
-    rooms[roomId].users[i].position = 3;
+    rooms[roomId].users[i].position = 2;
   }
 }
 

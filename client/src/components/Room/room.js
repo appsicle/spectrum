@@ -15,11 +15,14 @@ function Room(props) {
     }
   }, [props.roomData]);
 
-  const spectrum = <Spectrum roomData={props.roomData} user={props.user} updateUserPosition={props.updateUserPosition} videos={props.videos}/>;
+  const spectrum = <Spectrum socket={props.socket} roomId={props.roomId} roomData={props.roomData} user={props.user} updateUserPosition={props.updateUserPosition} videos={props.videos}/>;
   const lobby = <Lobby startGame={props.startGame} roomData={props.roomData} videos={props.videos}/>;
-  console.log("started: ", props.roomData.round.started);
+
   return (
     <div className="room-container">
+      <div className="videos-container">
+        test
+      </div>
       {props.roomData.round.started ? spectrum : lobby}
     </div>
   );

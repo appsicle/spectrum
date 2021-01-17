@@ -7,29 +7,39 @@ function Spectrum(props) {
 
   const bars = [
     {
-      text: "Strongly Disagree",
-      color: "rgba(230, 34, 30, 0.6)",
-    },
-    {
-      text: "Disagree",
-      color: "rgba(255, 115, 1, 0.6)",
-    },
-    {
-      text: "Neutral",
-      color: "rgba(254, 191, 0, 0.6)",
+      text: "Strongly Agree",
+      color: "rgba(30, 148, 62, 0.6)",
     },
     {
       text: "Agree",
       color: "rgba(200, 220, 0, 0.6)",
     },
     {
-      text: "Strongly Agree",
-      color: "rgba(30, 148, 62, 0.6)",
+      text: "Neutral",
+      color: "rgba(254, 191, 0, 0.6)",
+    },
+    {
+      text: "Disagree",
+      color: "rgba(255, 115, 1, 0.6)",
+    },
+    {
+      text: "Strongly Disagree",
+      color: "rgba(230, 34, 30, 0.6)",
     },
   ];
 
   return (
+    <div>
+      
+      {roomData.round.prompt}
+      {roomData.round.currentUser.name}
+      <div onClick={()=> {
+        console.log(props.roomId);
+        props.socket.emit("start", props.roomId);
+        console.log('next prompt boii');
+      }}>CLICK ME</div>
     <div className="spectrum-container">
+    
       {bars.map((bar, index) => (
         <div className="spectrum-item" style={{ backgroundColor: bar.color }} onClick={() => {
           updateUserPosition(index);
@@ -38,6 +48,7 @@ function Spectrum(props) {
           <PositionMarkers markerData={roomData.users} position={index} />
         </div>
       ))}
+    </div>
     </div>
   );
 };
