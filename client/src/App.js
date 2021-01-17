@@ -11,7 +11,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
 import './App.css';
 
-
 function App() {
   const [user, setUser] = useState(null);
   const [roomId, setRoomId] = useState(null);
