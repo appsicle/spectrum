@@ -16,7 +16,7 @@ cd client
 npm i
 npm start
 ```
-View the client on https://localhost:3000 and open this on multiple pages to simulate multiple users.
+Edit config.js to set serverUrl as localhost where you are running the server. View the client on https://localhost:3000 to view the site. You can open this on multiple pages to simulate multiple users!
 
 ### Run Server
 ```bash
