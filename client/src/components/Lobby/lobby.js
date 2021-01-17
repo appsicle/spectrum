@@ -3,10 +3,12 @@ import { Button, Fade } from "shards-react";
 import Avatar from "../Avatar/avatar";
 import "spinkit/spinkit.css";
 import "./lobby.css";
+import VideoElement from '../Video/video';
 
 function Lobby(props) {
   const [visible, setVisible] = useState(false);
   const users = props.roomData.users;
+  const videoStreams = props.videoStreams;
 
   useEffect(() => {
     setVisible(!visible);
