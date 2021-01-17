@@ -24,30 +24,16 @@ function App() {
     },
   });
   const socket = io(config.serverUrl);
-
-  const updateUser = (users) => {
-    for (let i = 0; i < users.length; ++i) {
-      const o = users[i];
-      console.log(o);
-      console.log(`o: ${o}, user: ${user}`);
-      if (o.id === user.id) {
-        setUser(o);
-        console.log('set user to ', o);
-        return;
-      }
-    }
-  }
-
+  
   useEffect(() => {
     socket.on("user-connected", (roomData) => {
       setRoomData(roomData);
-      console.log(roomData);
+      console.log("user-connected: ", roomData);
     });
 
     socket.on("user-disconnected", (roomData) => {
-      console.log("user-connected");
       setRoomData(roomData);
-      console.log(roomData);
+      console.log("user-disconnected: ", roomData);
     });
 
     socket.on("user-updated", (roomData) => {
@@ -55,25 +41,13 @@ function App() {
       console.log("user-updated: ", roomData);
     });
 
-    // socket.on("update-user-with-id", (id, updatedUser) => {
-    //   if (user.id === id) {
-    //     setUser(updatedUser);
-    //   }
-    // })
-
     socket.on('round-updated', (roomData) => {
       setRoomData(roomData);
-      console.log(user);
-      const users = roomData.users;
-      updateUser(users);
       console.log("round-updated: ", roomData);
     });
-  }, [user]);
+  });
 
   const updateUserPosition = (position) => {
-    console.log(user);
-    console.log(position);
-
     var newUser = user;
     newUser.position = position;
     setUser(newUser); // update our personal record of our user
@@ -89,7 +63,7 @@ function App() {
       <Router>
         <Switch>
           <Route exact path="/" component={() => <Home socket={socket} setUser={setUser} setRoomId={setRoomId} />} />
-          <Route exact path="/room/:roomId" component={() => <Room startGame={startGame} user={user} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition} />} />
+          <Route exact path="/room/:roomId" component={() => <Room startGame={startGame} user={user} setUser={setUser} roomId={roomId} roomData={roomData} updateUserPosition={updateUserPosition} />} />
         </Switch>
       </Router>
     </div>

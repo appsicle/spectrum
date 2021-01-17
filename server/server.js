@@ -51,7 +51,6 @@ io.on("connection", (socket) => {
     user.avatar = avatar;
 
     rooms[roomId].users.push(user);
-    // io.in(roomId).emit('updated-user-with-id', user.id, user);
 
     socket.join(roomId);
     io.in(roomId).emit("user-connected", rooms[roomId]);
