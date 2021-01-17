@@ -23,9 +23,11 @@ function App() {
       currentUser: null,
     },
   });
+  const [socket, setSocket] = useState(null);
   
   useEffect(() => {
     const socket = io(config.serverUrl, { transports: ['websocket'] });
+    setSocket(socket);
 
     console.log('use effect ran');
     socket.on("user-connected", (roomData) => {
