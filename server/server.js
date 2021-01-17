@@ -12,6 +12,7 @@ const avatarsUrl = 'https://spectrum-avatars.s3-us-west-1.amazonaws.com';
 const rooms = {};
 
 io.on("connection", (socket) => {
+  console.log(socket.client.conn.server.clientsCount + " users connected");
   // user props: id, name, position, avatar
   // enter-room is emitted when a user joins or creates a new room
   socket.on("enter-room", (roomId, user) => {

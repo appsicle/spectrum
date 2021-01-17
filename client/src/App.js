@@ -23,15 +23,20 @@ function App() {
       currentUser: null,
     },
   });
-  const socket = io(config.serverUrl);
+  const socket = io(config.serverUrl, { transports: ['websocket'] });
   
   useEffect(() => {
+    console.log('use effect ran');
     socket.on("user-connected", (roomData) => {
       setRoomData(roomData);
       console.log("user-connected: ", roomData);
     });
 
     socket.on("user-disconnected", (roomData) => {
+      if (roomData.users.length === 0) {
+        socket.disconnect();
+        console.log('disconnected entire socket');
+      }
       setRoomData(roomData);
       console.log("user-disconnected: ", roomData);
     });
@@ -45,7 +50,7 @@ function App() {
       setRoomData(roomData);
       console.log("round-updated: ", roomData);
     });
-  });
+  }, []);
 
   const updateUserPosition = (position) => {
     var newUser = user;
