@@ -15,7 +15,10 @@ io.on("connection", (socket) => {
   socket.on("enter-room", (roomId, user) => {
     // if this room doesn't exist, initialize it 
     if (!rooms[roomId]) {
+      // make set of avatars available for the room temp 10 random images
+      var avatars = ["https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200", "https://picsum.photos/200"];
       rooms[roomId] = {
+        availableAvatars: avatars,
         users: [],
         unusedPrompts: prompts, // initialize unused prompts for the room here
         round: {
@@ -26,8 +29,15 @@ io.on("connection", (socket) => {
         }
       };
     }
+
+    // add random avatar to user before using
+    const numAvailAvatars = rooms[roomId].availableAvatars.length;
+    const avatarIndex = Math.floor(Math.random() * numAvailAvatars);
+    const avatar = rooms[roomId].availableAvatars[avatarIndex];
+    rooms[roomId].availableAvatars.splice(avatarIndex, 1);
+    user.avatar = avatar;
+
     rooms[roomId].users.push(user);
-    rooms[roomId].round.unusedSpeakers.push(user);
 
     socket.join(roomId);
     io.in(roomId).emit("user-connected", rooms[roomId]);
