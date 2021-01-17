@@ -5,7 +5,8 @@
 }
 
 .avatar-image-container {
-  margin: 0 20px;
+  margin: 20px auto;
+  max-width: 150px;
 }
 
 .avatar-image {
@@ -14,7 +15,7 @@
 
 .user-name-container {
   margin: 0 auto;
-  background-color: rgb(91 98 138);
+  background-color: black;
   border-radius: 8px;
   padding: 0 5px;
   text-align: center;
@@ -22,6 +23,6 @@
 
 .user-name-container h4 {
   color: white;
-  font-size: 14px;
+  font-size: 16px;
   margin: 0;
 }

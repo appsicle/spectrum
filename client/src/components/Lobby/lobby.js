@@ -29,8 +29,8 @@ function Lobby(props) {
         </Button>
       </div>
       <div className="avatar-container">
-        {users.map((user) => (
-          <Avatar user={user} />
+        {users.map((user, index) => (
+          <Avatar key={index} user={user} />
         ))}
       </div>
     </div>

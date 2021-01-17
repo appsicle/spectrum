@@ -8,31 +8,23 @@ function Spectrum(props) {
   const bars = [
     {
       text: "Strongly Disagree",
-      color: "red",
+      color: "rgba(230, 34, 30, 0.6)",
     },
     {
       text: "Disagree",
-      color: "green",
-    },
-    {
-      text: "Somewhat Disagree",
-      color: "green",
+      color: "rgba(255, 115, 1, 0.6)",
     },
     {
       text: "Neutral",
-      color: "blue",
-    },
-    {
-      text: "Somewhat Agree",
-      color: "green",
+      color: "rgba(254, 191, 0, 0.6)",
     },
     {
       text: "Agree",
-      color: "green",
+      color: "rgba(200, 220, 0, 0.6)",
     },
     {
       text: "Strongly Agree",
-      color: "green",
+      color: "rgba(30, 148, 62, 0.6)",
     },
   ];
 

@@ -23,7 +23,7 @@ function Home(props) {
     const user = {
       id: uuid(),
       name: nickname,
-      position: 3,
+      position: 2,
       avatar: ''
     }
     props.socket.emit('enter-room', roomNumber, user);
