@@ -11,6 +11,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
 import './App.css';
 
+const uuid = uuidv4();
+const peer = new Peer('spectrum-' + uuid);  // using public peerjs server
+let userIndex = 1;
+
 function App() {
   const [user, setUser] = useState(null);
   const [roomId, setRoomId] = useState(null);
@@ -61,6 +65,58 @@ function App() {
   const startGame = () => {
     socket.emit('start', roomId);
   };
+
+
+  // Send out calls to specified UUID
+  const call = (id) => {
+    navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+      .then(stream => {
+        console.log("Caller: stream found")
+        var call = peer.call('spectrum-' + id, stream);
+        call.on('stream', function (remoteStream) {
+          // Show stream in some video/canvas element.
+          videoRefs.current[userIndex].srcObject = remoteStream
+          videoRefs.current[userIndex].play()
+          userIndex++;
+        })
+      })
+      .catch(err => {
+        console.error("Caller: stream not found, could not find webcam. " + err)
+      })
+  }
+
+  // Listen for calls on my UUID
+  useEffect(() => {
+    peer.on('call', function (call) {
+      navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+        .then(stream => {
+          console.log("Answerer: stream found")
+          call.answer(stream); // Answer the call with an A/V stream.
+          call.on('stream', function (remoteStream) {
+            // Show stream in some video/canvas element.
+            videoRefs.current[userIndex].srcObject = remoteStream
+            videoRefs.current[userIndex].play()
+            userIndex++;
+          });
+        })
+        .catch(err => {
+          console.error("Answerer: stream not found, could not find webcam. " + err)
+        });
+    });
+  }, [])
+
+  // Initialize own video stream on video[0]
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
+      .then(stream => {
+        console.log("Self: stream found")
+        videoRefs.current[0].srcObject = stream;
+        videoRefs.current[0].play()
+      })
+      .catch(err => {
+        console.error("Self: stream not found, could not find webcam. " + err)
+      });
+  })
 
   return (
     <div className="App">
