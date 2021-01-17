@@ -1,0 +1,17 @@
+:root {
+  --sk-color: #3f50b5;
+  --sk-size: 70px;
+}
+
+.lobby-container {
+  
+}
+
+.loader-container {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.spinner {
+  margin: 40px auto;
+}
