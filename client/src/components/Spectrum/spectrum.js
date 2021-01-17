@@ -77,9 +77,9 @@ function Spectrum(props) {
       </Modal>
 
       <div className="prompt-container">
-        <h6>
-          {roomData.round.prompt}, speaker: {currentUser.id}, you: {myUser.id}
-        </h6>
+        <h1>
+          {roomData.round.prompt}
+        </h1>
       </div>
       <div className="spectrum-container">
         {bars.map((bar, index) => (
@@ -100,31 +100,32 @@ function Spectrum(props) {
             </div>
           </div>
         ))}
-
-        <ButtonGroup vertical className="skip-buttons">
-          <Button
-            theme="primary"
-            id="skip-prompt"
-            onClick={() => {
-              props.socket.emit("start", props.roomId);
-            }}
-            disabled={roomData.round.currentUser.id !== props.user.id}
-          >
-            <FontAwesomeIcon icon={faFastForward} />
-            <span className="skip-button-text">Skip prompt</span>
-          </Button>
-          <Button
-            theme="secondary"
-            id="skip-speaker"
-            onClick={() => {
-              props.socket.emit("next-speaker", props.roomId);
-            }}
-            disabled={roomData.round.currentUser.id !== props.user.id}
-          >
-            <FontAwesomeIcon icon={faComments} />
-            <span className="skip-button-text"> Next speaker</span>
-          </Button>
-        </ButtonGroup>
+        {roomData.finishedActivity ? null :
+          <ButtonGroup vertical className="skip-buttons">
+            <Button
+              theme="primary"
+              id="skip-prompt"
+              onClick={() => {
+                props.socket.emit("start", props.roomId);
+              }}
+              disabled={roomData.round.currentUser.id !== props.user.id}
+            >
+              <FontAwesomeIcon icon={faFastForward} />
+              <span className="skip-button-text">Next prompt</span>
+            </Button>
+            {!roomData.round.unusedSpeakers.length ? null :
+              <Button
+                theme="secondary"
+                id="skip-speaker"
+                onClick={() => {
+                  props.socket.emit("next-speaker", props.roomId);
+                }}
+                disabled={roomData.round.currentUser.id !== props.user.id}
+              >
+                <FontAwesomeIcon icon={faComments} />
+                <span className="skip-button-text"> Next speaker</span>
+              </Button>}
+          </ButtonGroup>}
       </div>
     </div>
   );
@@ -138,7 +139,7 @@ function PositionMarkers(props) {
   useEffect(() => {
     setVisible(!visible);
   }, []);
-  
+
 
   return markerData.map((user, index) => {
     if (user.position === position) {

@@ -34,6 +34,7 @@ io.on("connection", (socket) => {
         availableAvatars: avatars,
         users: [],
         unusedPrompts: [...prompts], // initialize unused prompts for the room here
+        finishedActivity: false, // to be used on the frontend to know when room has gone through all prompts
         round: {
           started: false,
           unusedSpeakers: [],
@@ -124,7 +125,8 @@ io.on("connection", (socket) => {
 function popPromptFor(roomId) {
   const numPossiblePrompts = rooms[roomId].unusedPrompts.length;
   if (numPossiblePrompts === 0) {
-    return "Finished all prompts!"; // can update this message later
+    rooms[roomId].finishedActivity = true;
+    return "You've finished all prompts! Hope you enjoyed Spectrum :)"; // can update this message later
   }
   const promptIndex = Math.floor(Math.random() * numPossiblePrompts);
   const prompt = rooms[roomId].unusedPrompts[promptIndex];

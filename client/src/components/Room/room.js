@@ -34,11 +34,10 @@ function Room(props) {
     setPeer(peer1);
   }, [])
 
-
   // Call the latest new user
   useEffect(() => {
     console.info(props.newestUser)
-    if (props.newestUser && props.newestUser != props.user.id + "yert" + props.user.name) {
+    if (props.newestUser && props.newestUser !== props.user.id + "yert" + props.user.name) {
       console.log("Call: ", props.newestUser)
       navigator.mediaDevices.getUserMedia(CAPTURE_OPTIONS)
         .then(stream => {
@@ -142,17 +141,20 @@ function Room(props) {
     <>
 
       <div className="room-container">
-        <div>
+        <div className="videos-container">
+          <div className="video-container">
           {videoStreams.map(videoStream => (
             <>
               <VideoElement mediaStream={videoStream.stream} />
               {/* <h2>{videoStream.name} {videoStream.UUID}</h2> */}
             </>
           ))}
+          </div>
         </div>
         {props.roomData.round.started ? spectrum : lobby}
       </div>
-    </>)
+    </>
+  );
 }
 
 export default Room;
