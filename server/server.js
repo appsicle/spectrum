@@ -3,79 +3,134 @@ const app = express();
 const cors = require("cors");
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
-const prompts = require("./prompts.js");
+const defaultPrompts = require("./prompts.js");
+const bodyParser = require('body-parser');
+var jsonParser = bodyParser.json();
 
 app.use(express.static("public"));
 app.use(cors());
 const avatarsUrl = 'https://spectrum-avatars.s3-us-west-1.amazonaws.com';
-const rooms = {};
+// current issue: the rooms that is being changed by the endpoints is not updating for the socket
+var rooms = {}; 
+var socketToRoom = {};
+
+app.post('/createRoom', jsonParser, function (req,res){
+  const {roomId, customPrompts} = req.body;
+  if (rooms[roomId]) {
+    // should be an error because a user tried to create a room with an existing ID
+    console.log('error - a room with this id already exists');
+    res.status(400).json({
+      message: 'Cannot create a room already exists.'
+    })
+  } 
+
+  // make set of avatars available for the room temp 10 random images
+  const avatars = [
+    avatarsUrl+'/beaver.png',
+    avatarsUrl+'/cat.png',
+    avatarsUrl+'/corn.png',
+    avatarsUrl+'/dog.png',
+    avatarsUrl+'/peach.png',
+    avatarsUrl+'/rabbit.png',
+    avatarsUrl+'/sacrifice.png',
+    avatarsUrl+'/koala.png',
+    avatarsUrl+'/macaw.png',
+    avatarsUrl+'/turkey.png',
+  ];
+
+  rooms[roomId] = {
+    availableAvatars: avatars,
+    users: [],
+    unusedPrompts: customPrompts ? customPrompts : [...defaultPrompts], 
+    finishedActivity: false, // to be used on the frontend to know when room has gone through all prompts
+    round: {
+      started: false,
+      unusedSpeakers: [],
+      prompt: "",
+      currentUser: null,
+    },
+  };
+  
+  res.status(200).send();
+});
+
+app.get('/joinRoom', jsonParser, function (req,res){
+  const {roomId} = req.body;
+  // if this room doesn't exist, initialize it
+  if (!rooms[roomId]) {
+    // should return an error because the user tried to join a room that doesn't exist
+    console.log('error - this room does not exist');
+    res.status(400).json({
+      message: 'Cannot join a room that does not exist.'
+    })
+  } 
+  
+  res.status(200).send();
+});
 
 io.on("connection", (socket) => {
   console.log(socket.client.conn.server.clientsCount + " users connected");
-  // user props: id, name, position, avatar
-  // enter-room is emitted when a user joins or creates a new room
-  socket.on("enter-room", (roomId, user) => {
-    // if this room doesn't exist, initialize it
-    if (!rooms[roomId]) {
-      // make set of avatars available for the room temp 10 random images
-      const avatars = [
-        avatarsUrl+'/beaver.png',
-        avatarsUrl+'/cat.png',
-        avatarsUrl+'/corn.png',
-        avatarsUrl+'/dog.png',
-        avatarsUrl+'/peach.png',
-        avatarsUrl+'/rabbit.png',
-        avatarsUrl+'/sacrifice.png',
-        avatarsUrl+'/koala.png',
-        avatarsUrl+'/macaw.png',
-        avatarsUrl+'/turkey.png',
-      ];
-      rooms[roomId] = {
-        availableAvatars: avatars,
-        users: [],
-        unusedPrompts: [...prompts], // initialize unused prompts for the room here
-        finishedActivity: false, // to be used on the frontend to know when room has gone through all prompts
-        round: {
-          started: false,
-          unusedSpeakers: [],
-          prompt: "",
-          currentUser: null,
-        },
-      };
-    }
 
+  // enter-room is emitted when a user joins a room
+  socket.on("enter-room", (roomId, user) => {
+    console.log("inside enter room ", roomId);
+    console.log("in enter room", rooms[roomId]);
     // add random avatar to user before using
     const numAvailAvatars = rooms[roomId].availableAvatars.length;
     const avatarIndex = Math.floor(Math.random() * numAvailAvatars);
     const avatar = rooms[roomId].availableAvatars[avatarIndex];
     rooms[roomId].availableAvatars.splice(avatarIndex, 1);
     user.avatar = avatar;
+    user.socketId = socket.id; // need this to know what socket disconnected on the backend
 
     rooms[roomId].users.push(user);
 
     socket.join(roomId);
     io.in(roomId).emit("user-connected", rooms[roomId]);
     console.log("user connected: ", rooms[roomId]);
+  });
 
-    socket.on("disconnect", () => {
-      // remove user from the room users list
-      rooms[roomId].users = rooms[roomId].users.filter(
-        (obj) => obj.id !== user.id
-      );
-      // if there are no more users in the room, get rid of it
-      if (rooms[roomId].users.length === 0) {
-        rooms[roomId] = null;
-        return;
+  socket.on("disconnect", () => {
+    const roomId = socketToRoom[socket.socketId];
+    if (!roomId) {
+      // if user disconnected befor entering a room, don't do anything
+      return;
+    }
+
+    // find the user we are disconnecting based on the socket's id
+    var disconnectingUser = null;
+    for (var i = 0; i < rooms[roomId].users.length; i++) {
+      if (rooms[roomId].users[i].socketId === socket.socketId) {
+        disconnectingUser = rooms[roomId].users[i];
       }
-      rooms[roomId].availableAvatars.push(user.avatar); // readd avatar to available list when user disconnects
-      rooms[roomId].round.unusedSpeakers = rooms[roomId].round.unusedSpeakers.filter(
-        (obj) => obj.id !== user.id
-      ); // remove user from unusedSpeakers in case it is mid round and they haven't spoken yet and are leaving
-      rooms[roomId].round.currentUser = popSpeakerFor(roomId); // if the user disconnecting was the currentUser/speaker, set this to be someone new
+    }
 
-      io.in(roomId).emit("user-disconnected", {"roomData": rooms[roomId], "userid": user.id});
-      console.log("user disconnected: ", {"roomData": rooms[roomId], "userid": user.id});
-    });
+    // remove user from the room users list
+    rooms[roomId].users = rooms[roomId].users.filter(
+      (obj) => obj.id !== disconnectingUser.id
+    );
+
+    // if there are no more users in the room, get rid of it 
+    if (rooms[roomId].users.length === 0) {
+      rooms[roomId] = null;
+      return;
+    }
+
+    rooms[roomId].availableAvatars.push(disconnectingUser.avatar); // readd avatar to available list when user disconnects
+    rooms[roomId].round.unusedSpeakers = rooms[roomId].round.unusedSpeakers.filter(
+      (obj) => obj.id !== disconnectingUser.id
+    ); // remove user from unusedSpeakers in case it is mid round and they haven't spoken yet and are leaving
+    
+     // if the user disconnecting was the currentUser/speaker, set this to be someone new
+    if (rooms[roomId].round.currentUser.id === disconnectingUser.id) {
+      rooms[romoId].round.currentUser.id = popSpeakerFor(roomId);
+    } 
+
+    // remove this socket from our socketToRoom map
+    socketToRoom[socket.socketId] = null;
+  
+    io.in(roomId).emit("user-disconnected", {"roomData": rooms[roomId], "userid": disconnectingUser.id});
+    console.log("user disconnected: ", {"roomData": rooms[roomId], "userid": disconnectingUser.id});
   });
 
   socket.on("update-user", (roomId, user) => {

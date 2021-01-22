@@ -30,7 +30,7 @@ function Room(props) {
 
   // connect to peer
   useEffect(() => {
-    console.log("MY UUID", props.user.id);
+    // console.log("MY UUID", props.user.id);
     const peer1 = new Peer(
       "spectrum-" + props.user.id + "yert" + props.user.name
     );
@@ -39,20 +39,20 @@ function Room(props) {
 
   // Call the latest new user
   useEffect(() => {
-    console.info(props.newestUser);
+    // console.info(props.newestUser);
     if (
       props.newestUser &&
       props.newestUser !== props.user.id + "yert" + props.user.name
     ) {
-      console.log("Call: ", props.newestUser);
+      // console.log("Call: ", props.newestUser);
       navigator.mediaDevices
         .getUserMedia(CAPTURE_OPTIONS)
         .then((stream) => {
-          console.log("Caller: stream found")
+          // console.log("Caller: stream found")
           var call = peer.call("spectrum-" + props.newestUser, stream);
           call.on("stream", function (remoteStream) {
             // Show stream in some video/canvas element.
-            console.log("Caller: received response");
+            // console.log("Caller: received response");
             let uuid, name;
             [uuid, name] = props.newestUser.split("yert");
             if (!dup.includes(uuid)) {
@@ -62,11 +62,11 @@ function Room(props) {
                 { stream: remoteStream, UUID: uuid, name: name, call: call },
               ]);
             } else {
-              console.log("DUP");
+              // console.log("DUP");
             }
           });
           call.on("close", () => {
-            console.log("Caller: connection closed");
+            // console.log("Caller: connection closed");
           });
         })
         .catch((err) => {
@@ -81,18 +81,18 @@ function Room(props) {
   useEffect(() => {
     if (peer && newUser) {
       // Answer
-      console.log("Answerer: Initialize");
+      // console.log("Answerer: Initialize");
       // console.log(peer)
       peer.on("call", function (call) {
-        console.log("Answerer: Got a call");
+        // console.log("Answerer: Got a call");
         navigator.mediaDevices
           .getUserMedia(CAPTURE_OPTIONS)
           .then((stream) => {
-            console.log("Answerer: stream found");
+            // console.log("Answerer: stream found");
             call.answer(stream); // Answer the call with an A/V stream.
             call.on("stream", function (remoteStream) {
               // Show stream in some video/canvas element.
-              console.log("Answerer: received response");
+              // console.log("Answerer: received response");
               let uuid, name;
               [uuid, name] = call.peer.slice(9).split("yert");
               if (!dup.includes(uuid)) {
@@ -102,11 +102,11 @@ function Room(props) {
                   { stream: remoteStream, UUID: uuid, name: name, call: call },
                 ]);
               } else {
-                console.log("DUP");
+                // console.log("DUP");
               }
             });
             call.on("close", () => {
-              console.log("Answerer: connection closed");
+              // console.log("Answerer: connection closed");
             });
           })
           .catch((err) => {
@@ -145,7 +145,7 @@ function Room(props) {
       navigator.mediaDevices
         .getUserMedia({ video: true, audio: false })
         .then((stream) => {
-          console.log("Self: stream found", stream);
+          // console.log("Self: stream found", stream);
           setVideoStreams((prevVideoStreams) => [
             ...prevVideoStreams,
             { stream: stream, UUID: props.user.id, name: props.user.name },
@@ -176,9 +176,9 @@ function Room(props) {
       videos={props.videos}
     />
   );
-  console.log("started: ", props.roomData.round.started);
+  // console.log("started: ", props.roomData.round.started);
 
-  console.log(props.roomData.users);
+  // console.log(props.roomData.users);
   return (
     <>
       <div className="room-container">
