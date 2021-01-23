@@ -15,8 +15,8 @@ var rooms = {};
 var socketToRoom = {};
 
 app.post('/createRoom', jsonParser, function (req,res){
-  const {roomId, customPrompts} = req.body;
-  if (rooms[roomId]) {
+  const {roomName, customPrompts} = req.body;
+  if (rooms[roomName]) {
     // should be an error because a user tried to create a room with an existing ID
     console.log('error - a room with this id already exists');
     res.status(400).json({
@@ -38,7 +38,7 @@ app.post('/createRoom', jsonParser, function (req,res){
     avatarsUrl+'/turkey.png',
   ];
 
-  rooms[roomId] = {
+  rooms[roomName] = {
     availableAvatars: avatars,
     users: [],
     unusedPrompts: customPrompts ? customPrompts : [...defaultPrompts], 
@@ -54,10 +54,10 @@ app.post('/createRoom', jsonParser, function (req,res){
   res.status(200).send();
 });
 
-app.get('/joinRoom', jsonParser, function (req,res){
-  const {roomId} = req.body;
+app.post('/joinRoom', jsonParser, function (req,res){
+  const {roomName} = req.body;
   // if this room doesn't exist, initialize it
-  if (!rooms[roomId]) {
+  if (!rooms[roomName]) {
     // should return an error because the user tried to join a room that doesn't exist
     console.log('error - this room does not exist');
     res.status(400).json({
@@ -72,138 +72,138 @@ io.on("connection", (socket) => {
   console.log(socket.client.conn.server.clientsCount + " users connected");
 
   // enter-room is emitted when a user joins a room
-  socket.on("enter-room", (roomId, user) => {
-    console.log("inside enter room ", roomId);
-    console.log("in enter room", rooms[roomId]);
+  socket.on("enter-room", (roomName, user) => {
+    console.log("inside enter room ", roomName);
+    console.log("in enter room", rooms[roomName]);
     // add random avatar to user before using
-    const numAvailAvatars = rooms[roomId].availableAvatars.length;
+    const numAvailAvatars = rooms[roomName].availableAvatars.length;
     const avatarIndex = Math.floor(Math.random() * numAvailAvatars);
-    const avatar = rooms[roomId].availableAvatars[avatarIndex];
-    rooms[roomId].availableAvatars.splice(avatarIndex, 1);
+    const avatar = rooms[roomName].availableAvatars[avatarIndex];
+    rooms[roomName].availableAvatars.splice(avatarIndex, 1);
     user.avatar = avatar;
     user.socketId = socket.id; // need this to know what socket disconnected on the backend
 
-    rooms[roomId].users.push(user);
+    rooms[roomName].users.push(user);
 
-    socket.join(roomId);
-    io.in(roomId).emit("user-connected", rooms[roomId]);
-    console.log("user connected: ", rooms[roomId]);
+    socket.join(roomName);
+    io.in(roomName).emit("user-connected", rooms[roomName]);
+    console.log("user connected: ", rooms[roomName]);
   });
 
   socket.on("disconnect", () => {
-    const roomId = socketToRoom[socket.socketId];
-    if (!roomId) {
+    const roomName = socketToRoom[socket.socketId];
+    if (!roomName) {
       // if user disconnected befor entering a room, don't do anything
       return;
     }
 
     // find the user we are disconnecting based on the socket's id
     var disconnectingUser = null;
-    for (var i = 0; i < rooms[roomId].users.length; i++) {
-      if (rooms[roomId].users[i].socketId === socket.socketId) {
-        disconnectingUser = rooms[roomId].users[i];
+    for (var i = 0; i < rooms[roomName].users.length; i++) {
+      if (rooms[roomName].users[i].socketId === socket.socketId) {
+        disconnectingUser = rooms[roomName].users[i];
       }
     }
 
     // remove user from the room users list
-    rooms[roomId].users = rooms[roomId].users.filter(
+    rooms[roomName].users = rooms[roomName].users.filter(
       (obj) => obj.id !== disconnectingUser.id
     );
 
     // if there are no more users in the room, get rid of it 
-    if (rooms[roomId].users.length === 0) {
-      rooms[roomId] = null;
+    if (rooms[roomName].users.length === 0) {
+      rooms[roomName] = null;
       return;
     }
 
-    rooms[roomId].availableAvatars.push(disconnectingUser.avatar); // readd avatar to available list when user disconnects
-    rooms[roomId].round.unusedSpeakers = rooms[roomId].round.unusedSpeakers.filter(
+    rooms[roomName].availableAvatars.push(disconnectingUser.avatar); // readd avatar to available list when user disconnects
+    rooms[roomName].round.unusedSpeakers = rooms[roomName].round.unusedSpeakers.filter(
       (obj) => obj.id !== disconnectingUser.id
     ); // remove user from unusedSpeakers in case it is mid round and they haven't spoken yet and are leaving
     
      // if the user disconnecting was the currentUser/speaker, set this to be someone new
-    if (rooms[roomId].round.currentUser.id === disconnectingUser.id) {
-      rooms[romoId].round.currentUser.id = popSpeakerFor(roomId);
+    if (rooms[roomName].round.currentUser.id === disconnectingUser.id) {
+      rooms[romoId].round.currentUser.id = popSpeakerFor(roomName);
     } 
 
     // remove this socket from our socketToRoom map
     socketToRoom[socket.socketId] = null;
   
-    io.in(roomId).emit("user-disconnected", {"roomData": rooms[roomId], "userid": disconnectingUser.id});
-    console.log("user disconnected: ", {"roomData": rooms[roomId], "userid": disconnectingUser.id});
+    io.in(roomName).emit("user-disconnected", {"roomData": rooms[roomName], "userid": disconnectingUser.id});
+    console.log("user disconnected: ", {"roomData": rooms[roomName], "userid": disconnectingUser.id});
   });
 
-  socket.on("update-user", (roomId, user) => {
+  socket.on("update-user", (roomName, user) => {
     // go through each user in the given room
-    for (let i = 0; i < rooms[roomId].users.length; i++) {
+    for (let i = 0; i < rooms[roomName].users.length; i++) {
       // if this is the user we're looking for in the room (matched by ID)
-      if (rooms[roomId].users[i].id === user.id) {
+      if (rooms[roomName].users[i].id === user.id) {
         // update this user in the room
-        rooms[roomId].users[i] = user;
+        rooms[roomName].users[i] = user;
         break;
       }
     }
 
-    io.in(roomId).emit("user-updated", rooms[roomId]);
-    console.log("user updated: ", rooms[roomId]);
+    io.in(roomName).emit("user-updated", rooms[roomName]);
+    console.log("user updated: ", rooms[roomName]);
   });
 
   // start initializes a new round (called at the first start and every 'next question' after)
-  socket.on("start", (roomId) => {
+  socket.on("start", (roomName) => {
     // set prompt
-    rooms[roomId].round.prompt = popPromptFor(roomId);
+    rooms[roomName].round.prompt = popPromptFor(roomName);
 
     // reset unusedSpeaker to hold all users
-    rooms[roomId].round.unusedSpeakers = [...rooms[roomId].users]; 
+    rooms[roomName].round.unusedSpeakers = [...rooms[roomName].users]; 
     // set speaker
-    rooms[roomId].round.currentUser = popSpeakerFor(roomId);
+    rooms[roomName].round.currentUser = popSpeakerFor(roomName);
 
     // set round to started
-    rooms[roomId].round.started = true;
+    rooms[roomName].round.started = true;
 
     // reset all user positions to be undecided (position 2)
-    resetUserPositionsFor(roomId);
+    resetUserPositionsFor(roomName);
 
-    io.in(roomId).emit("round-updated", rooms[roomId]);
-    console.log("round updated from start: ", rooms[roomId]);
+    io.in(roomName).emit("round-updated", rooms[roomName]);
+    console.log("round updated from start: ", rooms[roomName]);
   });
 
-  socket.on("next-speaker", (roomId) => {
+  socket.on("next-speaker", (roomName) => {
     // set speaker
-    rooms[roomId].round.currentUser = popSpeakerFor(roomId);
+    rooms[roomName].round.currentUser = popSpeakerFor(roomName);
 
-    io.in(roomId).emit("round-updated", rooms[roomId]);
-    console.log("round updated from next speaker: ", rooms[roomId]);
+    io.in(roomName).emit("round-updated", rooms[roomName]);
+    console.log("round updated from next speaker: ", rooms[roomName]);
   });
 });
 
-function popPromptFor(roomId) {
-  const numPossiblePrompts = rooms[roomId].unusedPrompts.length;
+function popPromptFor(roomName) {
+  const numPossiblePrompts = rooms[roomName].unusedPrompts.length;
   if (numPossiblePrompts === 0) {
-    rooms[roomId].finishedActivity = true;
+    rooms[roomName].finishedActivity = true;
     return "You've finished all prompts! Hope you enjoyed Spectrum :)"; // can update this message later
   }
   const promptIndex = Math.floor(Math.random() * numPossiblePrompts);
-  const prompt = rooms[roomId].unusedPrompts[promptIndex];
+  const prompt = rooms[roomName].unusedPrompts[promptIndex];
   // remove the chosen prompt from the unused prompts
-  rooms[roomId].unusedPrompts.splice(promptIndex, 1);
+  rooms[roomName].unusedPrompts.splice(promptIndex, 1);
   return prompt;
 }
 
 // if next-speaker is accidentally called without an available next speaker, currently breaks
-function popSpeakerFor(roomId) {
-  const numPossibleSpeakers = rooms[roomId].round.unusedSpeakers.length;
+function popSpeakerFor(roomName) {
+  const numPossibleSpeakers = rooms[roomName].round.unusedSpeakers.length;
   const speakerIndex = Math.floor(Math.random() * numPossibleSpeakers);
-  const speaker = rooms[roomId].round.unusedSpeakers[speakerIndex];
+  const speaker = rooms[roomName].round.unusedSpeakers[speakerIndex];
   // remove the chosen speaker from the unused speakers
-  rooms[roomId].round.unusedSpeakers.splice(speakerIndex, 1);
+  rooms[roomName].round.unusedSpeakers.splice(speakerIndex, 1);
   return speaker; 
 }
 
-function resetUserPositionsFor(roomId) {
+function resetUserPositionsFor(roomName) {
   // reset all user positions to be undecided (position 2)
-  for (var i = 0; i < rooms[roomId].users.length; i++) {
-    rooms[roomId].users[i].position = 2;
+  for (var i = 0; i < rooms[roomName].users.length; i++) {
+    rooms[roomName].users[i].position = 2;
   }
 }
 

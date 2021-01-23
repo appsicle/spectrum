@@ -43,7 +43,7 @@ function Home(props) {
           console.log(error);
         });
     } else {
-      axios.get('http://localhost:8000/joinRoom', {roomName: roomName})
+      axios.post('http://localhost:8000/joinRoom', {roomName: roomName})
       .then( res => {
         console.log("joinroom result", res);
         props.setUser(user);
