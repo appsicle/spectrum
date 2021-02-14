@@ -10,13 +10,14 @@ import {
 } from "shards-react";
 import { v4 as uuid_v4 } from 'uuid';
 import { useHistory } from "react-router-dom";
+import axios from 'axios';
 import './home.css';
 
 function Home(props) {
   const [visible, setVisible] = useState(false);
   const [toCreate, setToCreate] = useState(false);
   const [nickname, setNickname] = useState("");
-  const [roomNumber, setRoomNumber] = useState("");
+  const [roomName, setRoomName] = useState("");
 
   const history = useHistory();
 
@@ -26,12 +27,33 @@ function Home(props) {
       id: uuid_v4(),
       name: nickname,
       position: 2,
-      avatar: ''
+      avatar: '',
+      socketId: null,
     }
-    props.socket.emit('enter-room', roomNumber, user);
-    props.setUser(user);
-    props.setRoomId(roomNumber);
-    history.push(`/room/${roomNumber}`);
+    if (toCreate) {
+      // temp urls
+      axios.post('http://localhost:8000/createRoom', {roomName: roomName, customPrompts: ['test prompt1', 'testprompt2']})
+        .then( res => {
+          console.log("createroom result", res);
+          props.setUser(user);
+          props.setRoomId(roomName);
+          props.socket.emit('enter-room', roomName, user);
+          history.push(`/room/${roomName}`);
+        }).catch( error => {
+          console.log(error);
+        });
+    } else {
+      axios.post('http://localhost:8000/joinRoom', {roomName: roomName})
+      .then( res => {
+        console.log("joinroom result", res);
+        props.setUser(user);
+        props.setRoomId(roomName);
+        props.socket.emit('enter-room', roomName, user);
+        history.push(`/room/${roomName}`);
+      }).catch( error => {
+        console.log(error);
+      });
+    }
   };
 
   useEffect(() => {
@@ -68,11 +90,11 @@ function Home(props) {
           <FormInput
             className="password"
             placeholder="Name of room"
-            onChange={(e) => setRoomNumber(e.target.value)}
+            onChange={(e) => setRoomName(e.target.value)}
           />
         </FormGroup>
         <Button
-          disabled={!(nickname.length && roomNumber.length)}
+          disabled={!(nickname.length && roomName.length)}
           block
           outline
           onClick={(e) => { submitForm(e) }}
